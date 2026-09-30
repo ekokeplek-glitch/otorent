@@ -1,0 +1,473 @@
+/*
+Theme Name:        GeneratePress Child - Ryokourent
+Theme URI:         https://github.com/oned250/sewaoto
+Description:       Mobile-first modern dark responsive child theme for Ryokourent (Rental Motor Malang & Batu).
+Author:            Ryokourent Dev Team
+Author URI:        https://github.com/oned250
+Template:          generatepress
+Version:           1.0.0
+License:           GNU General Public License v2 or later
+License URI:       http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain:       generatepress-child
+*/
+
+/* ==========================================================================
+   Ryokourent Variables & Modern Dark Base Styling
+   ========================================================================== */
+
+:root {
+  --ryokou-bg-dark: #0b1120;
+  --ryokou-card-dark: #162032;
+  --ryokou-border-dark: #223249;
+  --ryokou-primary-accent: #f59e0b;       /* Energetic Amber/Orange */
+  --ryokou-primary-hover: #d97706;
+  --ryokou-whatsapp-green: #25d366;
+  --ryokou-whatsapp-hover: #128c7e;
+  --ryokou-text-main: #f8fafc;
+  --ryokou-text-muted: #94a3b8;
+  --ryokou-font-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+  font-family: var(--ryokou-font-base);
+  background-color: var(--ryokou-bg-dark);
+  color: var(--ryokou-text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Container constraints for clean presentation */
+.ryokou-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Mobile responsive utilities */
+@media (max-width: 768px) {
+  .ryokou-container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
+/* ==========================================================================
+   Single Motor Detail Page Styling (TASK-008)
+   ========================================================================== */
+.ryokou-single-motor-wrapper {
+  background-color: var(--ryokou-bg-dark);
+  color: var(--ryokou-text-main);
+  padding: 2rem 1rem 4rem;
+}
+
+.ryokou-single-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ryokou-single-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 2rem;
+  color: var(--ryokou-text-muted);
+}
+
+.ryokou-back-link {
+  color: var(--ryokou-primary-accent);
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.2s;
+}
+
+.ryokou-back-link:hover {
+  color: var(--ryokou-primary-hover);
+}
+
+.ryokou-nav-separator {
+  color: #334155;
+}
+
+.ryokou-nav-current {
+  color: var(--ryokou-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Layout Grid */
+.ryokou-single-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .ryokou-single-layout {
+    grid-template-columns: 1.8fr 1.2fr;
+    align-items: start;
+  }
+}
+
+/* Left Column: Media & Header */
+.ryokou-single-gallery {
+  position: relative;
+  background: #0f172a;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--ryokou-border-dark);
+  margin-bottom: 1.75rem;
+}
+
+.ryokou-single-media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.ryokou-single-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ryokou-single-media-placeholder {
+  aspect-ratio: 16 / 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #131c2d 0%, #1e2c44 100%);
+  gap: 0.75rem;
+}
+
+.ryokou-placeholder-icon {
+  font-size: 3.5rem;
+}
+
+.ryokou-placeholder-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ryokou-text-muted);
+}
+
+.ryokou-single-badges {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ryokou-badge-cat {
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--ryokou-primary-accent);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.ryokou-single-header {
+  margin-bottom: 1.5rem;
+}
+
+.ryokou-single-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--ryokou-text-main);
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
+}
+
+.ryokou-single-subtitle {
+  font-size: 1rem;
+  color: var(--ryokou-text-muted);
+  margin: 0;
+}
+
+/* Specs Card */
+.ryokou-single-specs-card {
+  background: var(--ryokou-card-dark);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ryokou-specs-title,
+.ryokou-inclusions-title,
+.ryokou-desc-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ryokou-text-main);
+  margin: 0 0 1rem;
+}
+
+.ryokou-single-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .ryokou-single-specs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ryokou-spec-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(11, 17, 32, 0.6);
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(34, 50, 73, 0.5);
+}
+
+.ryokou-spec-icon {
+  font-size: 1.5rem;
+}
+
+.ryokou-spec-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ryokou-spec-val {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ryokou-text-main);
+}
+
+/* Advisory Box */
+.ryokou-advisory-box {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.ryokou-advisory-bromo {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.ryokou-advisory-city {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.ryokou-advisory-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.ryokou-advisory-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  color: var(--ryokou-text-main);
+}
+
+.ryokou-advisory-desc {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ryokou-text-muted);
+  margin: 0;
+}
+
+/* Inclusions */
+.ryokou-single-inclusions {
+  background: var(--ryokou-card-dark);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ryokou-inclusions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .ryokou-inclusions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ryokou-inclusion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.ryokou-inclusion-icon {
+  font-size: 1.4rem;
+}
+
+.ryokou-inclusion-item strong {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--ryokou-text-main);
+  margin-bottom: 0.15rem;
+}
+
+.ryokou-inclusion-item span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+  line-height: 1.4;
+}
+
+/* Description */
+.ryokou-single-desc {
+  background: var(--ryokou-card-dark);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.ryokou-entry-content {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--ryokou-text-muted);
+}
+
+/* Right Sidebar Sticky Pricing Card */
+.ryokou-pricing-card {
+  background: var(--ryokou-card-dark);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: 14px;
+  padding: 1.75rem;
+  position: sticky;
+  top: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.ryokou-pricing-header {
+  border-bottom: 1px solid var(--ryokou-border-dark);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.ryokou-pricing-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--ryokou-primary-accent);
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.ryokou-pricing-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.ryokou-price-lg {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--ryokou-primary-accent);
+}
+
+.ryokou-pricing-overtime {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+  margin-top: 0.35rem;
+}
+
+.ryokou-pricing-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.ryokou-tier-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  background: rgba(11, 17, 32, 0.5);
+  padding: 0.6rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid rgba(34, 50, 73, 0.4);
+}
+
+.ryokou-tier-name {
+  color: var(--ryokou-text-muted);
+}
+
+.ryokou-tier-val {
+  color: var(--ryokou-text-main);
+  font-weight: 700;
+}
+
+.ryokou-sidebar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.ryokou-btn-full {
+  width: 100%;
+}
+
+.ryokou-quick-requirements {
+  background: rgba(11, 17, 32, 0.4);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.ryokou-req-title {
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: var(--ryokou-text-main);
+  margin: 0 0 0.5rem;
+}
+
+.ryokou-req-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.775rem;
+  color: var(--ryokou-text-muted);
+  line-height: 1.6;
+}
+
+.ryokou-pool-info {
+  border-top: 1px dashed var(--ryokou-border-dark);
+  padding-top: 1rem;
+}
+
+.ryokou-pool-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ryokou-text-main);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.ryokou-pool-desc {
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+

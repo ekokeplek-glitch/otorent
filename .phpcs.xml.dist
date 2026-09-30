@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<ruleset name="Ryokourent Coding Standards">
+    <description>Sniffs for Ryokourent WordPress Plugin and Child Theme.</description>
+
+    <!-- Exclude third-party and build directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/.next/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+
+    <!-- Scan only PHP files -->
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="s"/>
+
+    <!-- Set severity threshold -->
+    <arg name="severity" value="1"/>
+
+    <!-- Reference WordPress Coding Standards -->
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Docs"/>
+    <rule ref="WordPress-Extra"/>
+
+    <!-- Enforce custom prefix ryokourent_ -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="ryokourent"/>
+                <element value="ryokou"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Custom rules for textdomain -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="ryokourent"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>

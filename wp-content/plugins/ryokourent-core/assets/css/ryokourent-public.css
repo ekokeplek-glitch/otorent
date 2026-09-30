@@ -1,0 +1,860 @@
+/**
+ * Ryokourent Public Stylesheet
+ *
+ * Mobile-first, high-contrast dark theme styling for Ryokourent fleet catalog,
+ * interactive category tabs, motor cards, pricing cards, and action buttons.
+ *
+ * @package Ryokourent_Core
+ * @since   1.0.0
+ */
+
+/* ==========================================================================
+   Base Design Tokens
+   ========================================================================== */
+:root {
+  --ryokou-bg-dark: #0b1120;
+  --ryokou-card-dark: #162032;
+  --ryokou-card-hover: #1e2c44;
+  --ryokou-border-dark: #223249;
+  --ryokou-border-accent: #334868;
+  --ryokou-amber: #f59e0b;
+  --ryokou-amber-hover: #d97706;
+  --ryokou-amber-light: rgba(245, 158, 11, 0.12);
+  --ryokou-whatsapp: #25d366;
+  --ryokou-whatsapp-hover: #128c7e;
+  --ryokou-whatsapp-light: rgba(37, 211, 102, 0.12);
+  --ryokou-text-main: #f8fafc;
+  --ryokou-text-muted: #94a3b8;
+  --ryokou-text-subtle: #64748b;
+  --ryokou-status-green: #10b981;
+  --ryokou-status-red: #ef4444;
+  --ryokou-radius-sm: 6px;
+  --ryokou-radius-md: 10px;
+  --ryokou-radius-lg: 14px;
+  --ryokou-font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* ==========================================================================
+   Catalog Section Layout
+   ========================================================================== */
+.ryokou-catalog-section {
+  padding: 3rem 1rem;
+  background-color: var(--ryokou-bg-dark);
+  color: var(--ryokou-text-main);
+  font-family: var(--ryokou-font-sans);
+  box-sizing: border-box;
+}
+
+.ryokou-catalog-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.ryokou-catalog-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto 2.5rem;
+}
+
+.ryokou-section-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ryokou-amber);
+  background: var(--ryokou-amber-light);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 0.75rem;
+}
+
+.ryokou-section-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--ryokou-text-main);
+  margin: 0 0 0.85rem;
+}
+
+.ryokou-section-desc {
+  font-size: 0.95rem;
+  color: var(--ryokou-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Filter Tabs (Scrollable on Mobile)
+   ========================================================================== */
+.ryokou-filter-nav-wrapper {
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 0.5rem;
+}
+
+.ryokou-filter-nav-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.ryokou-filter-tabs {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: center;
+  align-items: center;
+  min-width: max-content;
+  padding: 0 0.5rem;
+}
+
+.ryokou-filter-btn {
+  appearance: none;
+  background: var(--ryokou-card-dark);
+  border: 1px solid var(--ryokou-border-dark);
+  color: var(--ryokou-text-muted);
+  padding: 0.6rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.ryokou-filter-btn:hover {
+  color: var(--ryokou-text-main);
+  border-color: var(--ryokou-amber);
+  background: var(--ryokou-card-hover);
+}
+
+.ryokou-filter-btn.active {
+  color: #0b1120;
+  background: var(--ryokou-amber);
+  border-color: var(--ryokou-amber);
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
+}
+
+/* ==========================================================================
+   Catalog Grid
+   ========================================================================== */
+.ryokou-catalog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .ryokou-catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ryokou-catalog-grid.ryokou-columns-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ==========================================================================
+   Motor Card Styling
+   ========================================================================== */
+.ryokou-motor-card {
+  background: var(--ryokou-card-dark);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: var(--ryokou-radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+.ryokou-motor-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--ryokou-border-accent);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* Card Media */
+.ryokou-card-media {
+  position: relative;
+  background: #0f172a;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ryokou-card-media-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ryokou-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.35s ease;
+}
+
+.ryokou-motor-card:hover .ryokou-card-img {
+  transform: scale(1.05);
+}
+
+.ryokou-card-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #131c2d 0%, #1e2c44 100%);
+  gap: 0.5rem;
+}
+
+.ryokou-card-placeholder-icon {
+  font-size: 2.75rem;
+}
+
+.ryokou-card-placeholder-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ryokou-text-muted);
+}
+
+/* Badges */
+.ryokou-card-top-badges {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.ryokou-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  backdrop-filter: blur(8px);
+}
+
+.ryokou-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.ryokou-status-available {
+  background: rgba(16, 185, 129, 0.88);
+  color: #ffffff;
+}
+
+.ryokou-status-warning {
+  background: rgba(245, 158, 11, 0.88);
+  color: #0b1120;
+}
+
+.ryokou-status-full {
+  background: rgba(239, 68, 68, 0.88);
+  color: #ffffff;
+}
+
+.ryokou-badge-bromo {
+  background: rgba(245, 158, 11, 0.95);
+  color: #0b1120;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.ryokou-badge-city {
+  background: rgba(15, 23, 42, 0.85);
+  color: var(--ryokou-text-muted);
+  border: 1px solid var(--ryokou-border-dark);
+}
+
+/* Card Content */
+.ryokou-card-content {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.ryokou-card-header {
+  margin-bottom: 0.85rem;
+}
+
+.ryokou-category-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ryokou-amber);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.ryokou-motor-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0;
+  color: var(--ryokou-text-main);
+}
+
+.ryokou-motor-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.ryokou-motor-title a:hover {
+  color: var(--ryokou-amber);
+}
+
+/* Specs Grid */
+.ryokou-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  background: rgba(11, 17, 32, 0.6);
+  padding: 0.75rem;
+  border-radius: var(--ryokou-radius-md);
+  border: 1px solid rgba(34, 50, 73, 0.5);
+  margin-bottom: 0.85rem;
+}
+
+.ryokou-spec-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.ryokou-spec-route {
+  grid-column: span 2;
+  border-top: 1px dashed rgba(34, 50, 73, 0.6);
+  padding-top: 0.4rem;
+  margin-top: 0.2rem;
+}
+
+.ryokou-spec-label {
+  font-size: 0.7rem;
+  color: var(--ryokou-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ryokou-spec-val {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--ryokou-text-main);
+}
+
+/* Facilities Included */
+.ryokou-card-facilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.ryokou-facility-item {
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--ryokou-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Pricing Section */
+.ryokou-card-pricing {
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--ryokou-border-dark);
+  margin-bottom: 1rem;
+}
+
+.ryokou-price-primary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+}
+
+.ryokou-price-label {
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+}
+
+.ryokou-price-amount {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--ryokou-amber);
+}
+
+.ryokou-price-period {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ryokou-text-muted);
+}
+
+.ryokou-price-placeholder {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ryokou-amber);
+}
+
+.ryokou-price-secondary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--ryokou-text-subtle);
+}
+
+/* Action Buttons (CTA) */
+.ryokou-card-actions {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 0.65rem;
+}
+
+.ryokou-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--ryokou-radius-md);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box;
+  min-height: 44px;
+}
+
+.ryokou-btn-primary {
+  background: var(--ryokou-amber);
+  color: #0b1120;
+  border: 1px solid var(--ryokou-amber);
+}
+
+.ryokou-btn-primary:hover {
+  background: var(--ryokou-amber-hover);
+  border-color: var(--ryokou-amber-hover);
+  color: #000000;
+  transform: translateY(-1px);
+}
+
+.ryokou-btn-whatsapp {
+  background: var(--ryokou-whatsapp);
+  color: #ffffff;
+  border: 1px solid var(--ryokou-whatsapp);
+}
+
+.ryokou-btn-whatsapp:hover {
+  background: var(--ryokou-whatsapp-hover);
+  border-color: var(--ryokou-whatsapp-hover);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.ryokou-btn-secondary {
+  background: var(--ryokou-card-hover);
+  color: var(--ryokou-text-main);
+  border: 1px solid var(--ryokou-border-accent);
+}
+
+.ryokou-btn-secondary:hover {
+  background: var(--ryokou-border-dark);
+  color: var(--ryokou-amber);
+}
+
+/* ==========================================================================
+   Empty Filter State
+   ========================================================================== */
+.ryokou-catalog-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: var(--ryokou-card-dark);
+  border: 1px dashed var(--ryokou-border-dark);
+  border-radius: var(--ryokou-radius-lg);
+  margin-top: 1rem;
+}
+
+.ryokou-empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ryokou-empty-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--ryokou-text-main);
+}
+
+.ryokou-empty-desc {
+  font-size: 0.9rem;
+  color: var(--ryokou-text-muted);
+  max-width: 480px;
+  margin: 0 auto 1.25rem;
+}
+
+/* ==========================================================================
+   Trust & Inclusions Banner
+   ========================================================================== */
+.ryokou-catalog-trust-banner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  background: rgba(22, 32, 50, 0.65);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: var(--ryokou-radius-lg);
+  padding: 1.5rem;
+  margin-top: 3rem;
+}
+
+@media (min-width: 640px) {
+  .ryokou-catalog-trust-banner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ryokou-catalog-trust-banner {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.ryokou-trust-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.ryokou-trust-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.ryokou-trust-item strong {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--ryokou-text-main);
+  margin-bottom: 0.2rem;
+}
+
+.ryokou-trust-item span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   Booking Form Styling (TASK-011)
+   ========================================================================== */
+.ryokou-booking-section {
+  padding: 3.5rem 1rem;
+  background-color: var(--ryokou-bg-dark);
+  color: var(--ryokou-text-main);
+  font-family: var(--ryokou-font-sans);
+}
+
+.ryokou-booking-container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.ryokou-booking-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 2.5rem;
+}
+
+.ryokou-booking-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--ryokou-text-main);
+  margin: 0.5rem 0 0.75rem;
+}
+
+.ryokou-booking-desc {
+  font-size: 0.95rem;
+  color: var(--ryokou-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Form Card Container */
+.ryokou-form-card {
+  background: var(--ryokou-card-dark);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: var(--ryokou-radius-lg);
+  padding: 2rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 640px) {
+  .ryokou-form-card {
+    padding: 1.25rem;
+  }
+}
+
+.ryokou-form-group-section {
+  padding-bottom: 1.75rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--ryokou-border-dark);
+}
+
+.ryokou-section-label-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.ryokou-step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ryokou-amber);
+  color: #0b1120;
+  font-weight: 800;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ryokou-step-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ryokou-text-main);
+  margin: 0;
+}
+
+/* Route Selector Cards */
+.ryokou-route-selector {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .ryokou-route-selector {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ryokou-route-option {
+  cursor: pointer;
+  display: block;
+}
+
+.ryokou-route-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ryokou-route-box {
+  background: rgba(11, 17, 32, 0.6);
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: var(--ryokou-radius-md);
+  padding: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  transition: all 0.2s ease-in-out;
+}
+
+.ryokou-route-option input[type="radio"]:checked + .ryokou-route-box,
+.ryokou-route-option.active .ryokou-route-box {
+  border-color: var(--ryokou-amber);
+  background: rgba(245, 158, 11, 0.08);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+}
+
+.ryokou-route-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.ryokou-route-meta strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--ryokou-text-main);
+  margin-bottom: 0.2rem;
+}
+
+.ryokou-route-meta span {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+  line-height: 1.4;
+}
+
+/* Inputs & Form Fields */
+.ryokou-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .ryokou-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ryokou-field-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.ryokou-field-label {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--ryokou-text-main);
+  margin-bottom: 0.4rem;
+}
+
+.ryokou-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.ryokou-input-text,
+.ryokou-input-select,
+.ryokou-input-textarea {
+  width: 100%;
+  background: #0b1120;
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: var(--ryokou-radius-sm);
+  color: var(--ryokou-text-main);
+  padding: 0.7rem 0.85rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ryokou-input-text:focus,
+.ryokou-input-select:focus,
+.ryokou-input-textarea:focus {
+  outline: none;
+  border-color: var(--ryokou-amber);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.ryokou-hint {
+  font-size: 0.72rem;
+  color: var(--ryokou-text-subtle);
+  margin-top: 0.3rem;
+}
+
+/* Live Calc Summary Card */
+.ryokou-calc-summary-card {
+  background: rgba(11, 17, 32, 0.8);
+  border: 1px solid var(--ryokou-border-accent);
+  border-left: 4px solid var(--ryokou-amber);
+  border-radius: var(--ryokou-radius-md);
+  padding: 1rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.ryokou-calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ryokou-calc-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+}
+
+.ryokou-calc-duration {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ryokou-text-main);
+}
+
+.ryokou-calc-price {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ryokou-amber);
+}
+
+/* Form Footer & Submit CTA */
+.ryokou-form-footer {
+  margin-top: 2rem;
+}
+
+.ryokou-btn-submit-booking {
+  width: 100%;
+  background: var(--ryokou-whatsapp);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--ryokou-radius-md);
+  padding: 0.95rem 1.5rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+  box-sizing: border-box;
+}
+
+.ryokou-btn-submit-booking:hover {
+  background: var(--ryokou-whatsapp-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+}
+
+.ryokou-submit-icon {
+  font-size: 1.35rem;
+}
+
+.ryokou-form-disclaimer {
+  font-size: 0.75rem;
+  color: var(--ryokou-text-subtle);
+  line-height: 1.55;
+  text-align: center;
+  margin: 1rem auto 0;
+  max-width: 640px;
+}
+

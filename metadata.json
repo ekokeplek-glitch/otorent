@@ -1,0 +1,6 @@
+{
+  "name": "Ryokourent",
+  "description": "Rental Sepeda Motor Malang Raya & Kota Wisata Batu - Website & Core Booking Plugin Architecture",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
