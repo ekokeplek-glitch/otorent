@@ -24,7 +24,7 @@ Dokumen ini memandu pemasangan lingkungan pengembangan lokal untuk proyek websit
 ### Langkah 2: Kloning Repositori
 Kloning repositori ini ke dalam direktori root instalasi WordPress Anda:
 ```bash
-git clone https://github.com/oned250/sewaoto.git .
+git clone https://github.com/ekokeplek-glitch/otorent.git .
 ```
 Atau jika menghubungkan ke folder WordPress yang sudah ada:
 * Letakkan `wp-content/plugins/ryokourent-core/` di `wp-content/plugins/`
