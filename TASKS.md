@@ -227,26 +227,30 @@ Dokumen ini berisi rincian urutan 30 task proyek Ryokourent sesuai dengan arsite
 
 ---
 
-### TASK-016: Buat Validasi Ketersediaan Unit & Perlindungan Privasi Stok
+### TASK-016: Buat Validasi Ketersediaan Unit & Perlindungan Privasi Stok [DONE]
+* **Status:** Selesai (DONE) - 2026-10-01
 * **Tujuan:** Membangun mesin kueri `availability.php` untuk memeriksa sisa kuota unit fisik model motor pada rentang tanggal yang diminta tanpa membocorkan data kuota ke publik.
 * **File yang Dibuat/Diubah:**
   * `wp-content/plugins/ryokourent-core/includes/availability.php`
+  * `wp-content/plugins/ryokourent-core/tests/test-availability.php`
 * **Dependensi:** TASK-005, TASK-010.
 * **Kriteria Selesai:** Fungsi `ryokourent_check_availability($motor_id, $start, $end)` mengembalikan status `true`/`false`. Endpoint AJAX publik hanya mengembalikan boolean ketersediaan; kuota fisik internal tidak pernah diekspos ke publik.
-* **Cara Pengujian:** Simulasikan 3 booking aktif pada motor dengan stok 3; pastikan pengecekan berikutnya menghasilkan status `available: false`.
-* **Risiko:** Query lambat jika jumlah data booking besar (gunakan kueri efisien `fields => 'ids'`).
+* **Cara Pengujian:** Jalankan unit test `test-availability.php` untuk mensimulasikan 3 booking aktif pada motor dengan stok 3 dan memastikan pengecekan berikutnya menghasilkan status `available: false`, serta memvalidasi ketiadaan kebocoran angka stok fisik ke publik.
+* **Risiko:** Query lambat jika jumlah data booking besar (teratasi dengan kueri efisien `fields => 'ids'` dan index post meta).
 
 ---
 
-### TASK-017: Buat Pencegahan Double Booking Atomik (Dua Titik Kritis)
+### TASK-017: Buat Pencegahan Double Booking Atomik (Dua Titik Kritis) [DONE]
+* **Status:** Selesai (DONE) - 2026-10-01
 * **Tujuan:** Menerapkan penguncian logika pada dua titik: (1) saat submit pesanan awal di web, dan (2) saat operator mengubah status menjadi `status_dikonfirmasi`.
 * **File yang Dibuat/Diubah:**
   * `wp-content/plugins/ryokourent-core/includes/availability.php`
   * `wp-content/plugins/ryokourent-core/includes/booking.php`
+  * `wp-content/plugins/ryokourent-core/tests/test-atomic-lock.php`
 * **Dependensi:** TASK-016.
-* **Kriteria Selesai:** Dilengkapi fungsi `ryokourent_with_motor_lock($motor_id, $callback)` berbasis `GET_LOCK` MySQL untuk eksekusi atomik. Operator diblokir mengonfirmasi pesanan jika pada titik konfirmasi kuota sudah penuh terisi booking lain.
-* **Cara Pengujian:** Tes dua request bersamaan pada unit dengan sisa kuota 1; pastikan hanya satu yang lolos.
-* **Risiko:** Deadlock jika lock tidak dilepas (selalu gunakan blok `finally { RELEASE_LOCK }`).
+* **Kriteria Selesai:** Dilengkapi fungsi `ryokourent_with_motor_lock($motor_id, $callback)` berbasis `GET_LOCK` MySQL untuk eksekusi atomik. Operator diblokir mengonfirmasi pesanan jika pada titik konfirmasi kuota sudah penuh terisi booking lain. Pelepasan lock terjamin pada blok `finally`.
+* **Cara Pengujian:** Jalankan unit test `test-atomic-lock.php` untuk menguji dua request bersamaan pada unit dengan sisa kuota 1 (hanya satu yang lolos) serta memverifikasi pemblokiran konfirmasi operator saat kuota armada habis.
+* **Risiko:** Deadlock jika lock tidak dilepas (teratasi dengan blok `finally { RELEASE_LOCK }` yang selalu dieksekusi).
 
 ---
 

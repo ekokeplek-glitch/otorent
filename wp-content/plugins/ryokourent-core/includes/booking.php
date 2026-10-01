@@ -458,7 +458,38 @@ function ryokourent_validate_booking_submission($raw_data = array()) {
     }
     $clean['rented_motor_id'] = $motor_id;
 
-    // 7. Calculate Server-Side Authoritative Pricing (Tamper-Proof)
+    // 7. Atomic Fleet Availability Check (Point 1 Critical Checkpoint - Anti Double-Booking)
+    if (function_exists('ryokourent_check_availability')) {
+        $check_result = function_exists('ryokourent_with_motor_lock')
+            ? ryokourent_with_motor_lock($motor_id, function () use ($motor_id, $clean) {
+                return ryokourent_check_availability($motor_id, $clean['start_datetime'], $clean['end_datetime']);
+            })
+            : ryokourent_check_availability($motor_id, $clean['start_datetime'], $clean['end_datetime']);
+
+        if (is_wp_error($check_result)) {
+            return array(
+                'success'    => false,
+                'code'       => 'concurrency_busy',
+                'message'    => $check_result->get_error_message(),
+                'errors'     => array('rented_motor_id' => $check_result->get_error_message()),
+                'status'     => 429,
+                'clean_data' => array(),
+            );
+        }
+
+        if (!$check_result) {
+            return array(
+                'success'    => false,
+                'code'       => 'unit_fully_booked',
+                'message'    => __('Armada ini telah terpesan penuh pada jadwal tersebut. Silakan pilih armada lain atau sesuaikan jadwal Anda.', 'ryokourent'),
+                'errors'     => array('rented_motor_id' => __('Armada telah terpesan penuh pada jadwal tersebut.', 'ryokourent')),
+                'status'     => 400,
+                'clean_data' => array(),
+            );
+        }
+    }
+
+    // 8. Calculate Server-Side Authoritative Pricing (Tamper-Proof)
     if (function_exists('ryokourent_calculate_booking_quote')) {
         $quote = ryokourent_calculate_booking_quote($motor_id, $start_raw, $end_raw);
         $clean['total_price']           = $quote['total_price'];

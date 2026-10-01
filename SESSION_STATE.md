@@ -17,9 +17,9 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
   - `feature/availability` (Fitur pencegahan double booking & pengecekan stok unit)
   - `feature/whatsapp` (Fitur generator draft pesan & URL WhatsApp)
   - `feature/admin-dashboard` (Fitur dashboard admin & pelaporan operasional)
-* **Task Terakhir Selesai:** `TASK-015: Buat Validasi Tanggal dan Jam (Operational Hours)`
+* **Task Terakhir Selesai:** `TASK-017: Buat Pencegahan Double Booking Atomik (Dua Titik Kritis)`
 * **Status Task Terakhir:** **DONE (SELESAI)**
-* **Task Selanjutnya:** `TASK-016: Buat Validasi Ketersediaan Unit & Perlindungan Privasi Stok` (Menunggu perintah selanjutnya dari pengguna)
+* **Task Selanjutnya:** `TASK-018: Buat Generator Pesan WhatsApp Resmi` (Menunggu perintah selanjutnya dari pengguna)
 
 ---
 
@@ -42,7 +42,25 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
 | **TASK-013** | Kalkulasi Durasi Sewa | FASE 3 | **DONE** | TASK-011 | 2026-10-01 |
 | **TASK-014** | Kalkulasi Harga Paket Sewa | FASE 3 | **DONE** | TASK-013 | 2026-10-01 |
 | **TASK-015** | Validasi Tanggal dan Jam | FASE 3 | **DONE** | TASK-013 | 2026-10-01 |
-| **TASK-016** | Validasi Ketersediaan Unit | FASE 3 | **PENDING** | TASK-005, TASK-010 | - |
+| **TASK-016** | Validasi Ketersediaan Unit | FASE 3 | **DONE** | TASK-005, TASK-010 | 2026-10-01 |
+| **TASK-017** | Pencegahan Double Booking Atomik | FASE 3 | **DONE** | TASK-016 | 2026-10-01 |
+| **TASK-018** | Generator Pesan WhatsApp | FASE 3 | **PENDING** | TASK-011, TASK-014 | - |
+
+---
+
+## 3. Komponen yang Telah Diimplementasikan pada TASK-016 & TASK-017
+1. **Modul Ketersediaan & Perlindungan Privasi Stok (`wp-content/plugins/ryokourent-core/includes/availability.php`):**
+   - Fungsi internal `ryokourent_get_motor_physical_stock($motor_id)` untuk mengakses kuota unit fisik secara tertutup dari publik.
+   - Fungsi `ryokourent_count_overlapping_bookings`: kueri efisien (`fields => 'ids'`) untuk mendeteksi tumpang tindih waktu sewa ($S_{booking} < E \text{ dan } E_{booking} > S$) pada status yang mengonsumsi kuota (`status_dikonfirmasi`, `status_berjalan`).
+   - Fungsi `ryokourent_check_availability`: mengembalikan `true` jika $(\text{PhysicalStock} - \text{ActiveOverlappingBookings}) > 0$.
+   - Endpoint AJAX publik `ryokourent_check_unit_availability`: secara ketat hanya mengembalikan status boolean `available: true/false` dan pesan ramah. Angka kuota fisik internal tidak pernah diekspos ke publik.
+2. **Pencegahan Double Booking Atomik pada Dua Titik Kritis (`includes/availability.php` & `includes/booking.php`):**
+   - Fungsi pengunci `ryokourent_with_motor_lock($motor_id, $callback, $timeout)`: mengeksekusi operasi kritis di dalam `GET_LOCK` MySQL atau transient per motor ID dengan pelepasan mutlak pada blok `finally { RELEASE_LOCK }` untuk menjamin ketiadaan risiko deadlock.
+   - **Titik Kritis 1 (Online Form Submit):** Validasi submit formulir di `ryokourent_validate_booking_submission()` mengeksekusi pengecekan kuota di dalam lock. Jika armada telah habis terpesan, formulir ditolak dengan status HTTP 400 (`unit_fully_booked`).
+   - **Titik Kritis 2 (Konfirmasi Operator):** Fungsi `ryokourent_confirm_booking()` dan hook `transition_post_status` memblokir perubahan status menjadi `status_dikonfirmasi` jika kuota armada telah habis terisi booking lain pada jadwal terkait, mengembalikan status ke status awal, dan memunculkan admin flash notice.
+3. **Automated Unit Test Suite:**
+   - `wp-content/plugins/ryokourent-core/tests/test-availability.php` (8 pengujian skenario simulasi 3 booking pada stok 3 menghasilkan available: false, tanggal tidak bertabrakan, status yang tidak memotong kuota).
+   - `wp-content/plugins/ryokourent-core/tests/test-atomic-lock.php` (7 pengujian eksekusi lock, pelepasan finally, simulasi 2 request bersamaan pada 1 unit tersisa, dan proteksi konfirmasi operator).
 
 ---
 

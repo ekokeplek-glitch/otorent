@@ -8,6 +8,19 @@ Format penulisan berpedoman pada [Keep a Changelog](https://keepachangelog.com/i
 ## [Unreleased] - 2026-10-01
 
 ### Added
+- **Fase 3 (TASK-017: Pencegahan Double Booking Atomik pada Dua Titik Kritis):**
+  - Implementasi fungsi pengunci atomik `ryokourent_with_motor_lock($motor_id, $callback, $timeout_seconds)` pada `includes/availability.php`:
+    - Menggunakan mekanisme `GET_LOCK` MySQL atau transient terisolasi per ID motor dengan pelepasan mutlak dalam blok `finally { RELEASE_LOCK }` untuk mencegah deadlock.
+    - **Titik Kritis 1 (Online Form Submit):** Integrasi ke `ryokourent_validate_booking_submission()` di `includes/booking.php` untuk memvalidasi ketersediaan armada di dalam lock dan langsung menolak pesanan jika kuota penuh.
+    - **Titik Kritis 2 (Konfirmasi Operator):** Implementasi fungsi `ryokourent_confirm_booking()` dan filter hook `transition_post_status` untuk memblokir operator mengonfirmasi pesanan jika kuota fisik telah penuh terisi booking lain pada jadwal terkait, mengembalikan status ke status awal, serta menampilkan admin notice.
+  - Pembuatan automated unit test `wp-content/plugins/ryokourent-core/tests/test-atomic-lock.php` (7 pengujian eksekusi lock, pelepasan finally, simulasi 2 request bersamaan pada unit kuota 1, dan proteksi konfirmasi operator).
+- **Fase 3 (TASK-016: Validasi Ketersediaan Unit & Perlindungan Privasi Stok):**
+  - Pembuatan modul mesin kueri ketersediaan `wp-content/plugins/ryokourent-core/includes/availability.php`:
+    - Fungsi internal `ryokourent_get_motor_physical_stock($motor_id)`: mengambil kuota fisik unit motor yang tertutup bagi akses publik.
+    - Fungsi `ryokourent_count_overlapping_bookings()`: kueri efisien berbasis `fields => 'ids'` untuk mendeteksi tumpang tindih waktu sewa ($S_{booking} < E \text{ dan } E_{booking} > S$) pada status yang mengonsumsi kuota (`status_dikonfirmasi`, `status_berjalan`).
+    - Fungsi `ryokourent_check_availability()`: formula ketersediaan unit $(\text{PhysicalStock} - \text{ActiveBookings}) > 0$.
+    - Pendaftaran endpoint AJAX publik `ryokourent_check_unit_availability`: secara ketat hanya mengembalikan status boolean `available: true/false` dan pesan status tanpa pernah membocorkan angka stok fisik ke publik.
+  - Pembuatan automated unit test `wp-content/plugins/ryokourent-core/tests/test-availability.php` (8 pengujian skenario simulasi 3 booking aktif pada stok 3 menghasilkan available: false, tanggal tidak bertabrakan, status yang tidak memotong kuota).
 - **Fase 3 (TASK-015: Validasi Tanggal dan Jam Operasional Pool):**
   - Penyempurnaan modul backend `wp-content/plugins/ryokourent-core/includes/booking.php`:
     - Menegakkan batas jam pelayanan serah terima unit di pool secara ketat antara pukul 07:00 – 23:00 WIB (request jam 02:00 WIB atau di luar jam buka otomatis diblokir dengan kode `invalid_schedule` dan HTTP 400).
