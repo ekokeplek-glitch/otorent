@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Ryokourent Core
- * Plugin URI:        https://github.com/oned250/sewaoto
+ * Plugin URI:        https://github.com/ekokeplek-glitch/otorent.git
  * Description:       Core business logic, CPT Armada & Penyewaan, WhatsApp booking engine, and role management for Ryokourent (Rental Motor Malang & Batu).
  * Version:           1.0.0
  * Requires at least: 6.0
