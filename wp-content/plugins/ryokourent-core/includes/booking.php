@@ -220,6 +220,130 @@ function ryokourent_validate_customer_data($input = array()) {
 }
 
 /**
+ * Validate rental schedule datetime range and operating hours.
+ *
+ * Enforces business rules:
+ * - Datetimes must be parseable in Asia/Jakarta (WIB) timezone.
+ * - End datetime must be strictly later than start datetime.
+ * - Minimum rental duration is 1 hour.
+ * - Both start and end times must fall within operating hours (07:00 – 23:00 WIB).
+ * - Accurately computes duration in hours and billable rental days (with 2h tolerance).
+ *
+ * @since 1.0.0
+ * @param string $start_str Raw start datetime string (e.g. '2026-10-02T08:30').
+ * @param string $end_str   Raw end datetime string (e.g. '2026-10-04T17:00').
+ * @param int    $tolerance_hours Overtime grace period in hours. Default 2.
+ * @return array Array with keys: 'is_valid' (bool), 'errors' (array), 'duration_hours' (float), 'billable_days' (int), 'summary_label' (string), 'start_iso' (string), 'end_iso' (string).
+ */
+function ryokourent_validate_rental_schedule($start_str, $end_str, $tolerance_hours = 2) {
+    $errors = array();
+    $tz = function_exists('ryokourent_get_timezone') ? ryokourent_get_timezone() : new DateTimeZone('Asia/Jakarta');
+
+    $clean_start = sanitize_text_field(wp_unslash($start_str));
+    $clean_end   = sanitize_text_field(wp_unslash($end_str));
+
+    if (empty($clean_start)) {
+        $errors['start_datetime'] = __('Waktu mulai sewa wajib ditentukan.', 'ryokourent');
+    }
+    if (empty($clean_end)) {
+        $errors['end_datetime'] = __('Waktu selesai sewa wajib ditentukan.', 'ryokourent');
+    }
+
+    if (!empty($errors)) {
+        return array(
+            'is_valid'       => false,
+            'errors'         => $errors,
+            'duration_hours' => 0.0,
+            'billable_days'  => 0,
+            'summary_label'  => '',
+            'start_iso'      => $clean_start,
+            'end_iso'        => $clean_end,
+        );
+    }
+
+    try {
+        $start_dt = new DateTime($clean_start, $tz);
+    } catch (Exception $e) {
+        $errors['start_datetime'] = __('Format tanggal/jam mulai sewa tidak valid.', 'ryokourent');
+    }
+
+    try {
+        $end_dt = new DateTime($clean_end, $tz);
+    } catch (Exception $e) {
+        $errors['end_datetime'] = __('Format tanggal/jam selesai sewa tidak valid.', 'ryokourent');
+    }
+
+    if (!empty($errors)) {
+        return array(
+            'is_valid'       => false,
+            'errors'         => $errors,
+            'duration_hours' => 0.0,
+            'billable_days'  => 0,
+            'summary_label'  => '',
+            'start_iso'      => $clean_start,
+            'end_iso'        => $clean_end,
+        );
+    }
+
+    // Check end > start
+    if ($end_dt <= $start_dt) {
+        $errors['end_datetime'] = __('Waktu selesai sewa harus lebih akhir dari waktu mulai sewa.', 'ryokourent');
+    }
+
+    // Check operating hours for start & end time (07:00 - 23:00 WIB)
+    if (function_exists('ryokourent_is_within_operating_hours')) {
+        if (!ryokourent_is_within_operating_hours($clean_start)) {
+            $errors['start_datetime'] = __('Jam mulai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).', 'ryokourent');
+        }
+        if (!ryokourent_is_within_operating_hours($clean_end)) {
+            $errors['end_datetime'] = __('Jam selesai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).', 'ryokourent');
+        }
+    }
+
+    // Calculate duration in hours
+    $diff_seconds = $end_dt->getTimestamp() - $start_dt->getTimestamp();
+    $duration_hours = max(0.0, round($diff_seconds / 3600, 2));
+
+    if (empty($errors) && $duration_hours < 1.0) {
+        $errors['end_datetime'] = __('Durasi pemesanan minimal adalah 1 jam.', 'ryokourent');
+    }
+
+    // Calculate billable days with 2-hour tolerance grace period
+    $billable_days = 0;
+    if (function_exists('ryokourent_calculate_rental_days')) {
+        $billable_days = ryokourent_calculate_rental_days($clean_start, $clean_end, $tolerance_hours);
+    } else {
+        if ($duration_hours <= (24 + $tolerance_hours)) {
+            $billable_days = 1;
+        } else {
+            $full_days = floor($duration_hours / 24);
+            $extra = fmod($duration_hours, 24);
+            $billable_days = ($extra > $tolerance_hours) ? (int) ($full_days + 1) : (int) $full_days;
+        }
+    }
+    $billable_days = max(1, (int) $billable_days);
+
+    // Format human-friendly duration summary
+    $display_hours = (fmod($duration_hours, 1) == 0.0) ? number_format($duration_hours, 0) : number_format($duration_hours, 1, '.', '');
+    $summary_label = sprintf(
+        /* translators: 1: Days count, 2: Hours */
+        _n('%1$d Hari (~%2$s Jam)', '%1$d Hari (~%2$s Jam)', $billable_days, 'ryokourent'),
+        $billable_days,
+        $display_hours
+    );
+
+    return array(
+        'is_valid'       => empty($errors),
+        'errors'         => $errors,
+        'duration_hours' => $duration_hours,
+        'billable_days'  => $billable_days,
+        'summary_label'  => $summary_label,
+        'start_iso'      => $start_dt->format('Y-m-d H:i'),
+        'end_iso'        => $end_dt->format('Y-m-d H:i'),
+    );
+}
+
+/**
  * Validate complete booking form submission.
  *
  * Verifies:
@@ -227,6 +351,7 @@ function ryokourent_validate_customer_data($input = array()) {
  * - Anti-spam honeypot
  * - Rate limiting
  * - Customer identity fields
+ * - Rental schedule & operating hours (07:00 - 23:00 WIB)
  * - Rental fleet selection & location
  *
  * @since 1.0.0
@@ -276,7 +401,22 @@ function ryokourent_validate_booking_submission($raw_data = array()) {
         );
     }
 
-    // 4. Validate Customer Identity Data
+    // 4. Validate Rental Schedule (Dates, Operating Hours 07:00-23:00 WIB, Tolerance Grace)
+    $start_raw = isset($raw_data['start_datetime']) ? $raw_data['start_datetime'] : '';
+    $end_raw   = isset($raw_data['end_datetime']) ? $raw_data['end_datetime'] : '';
+    $schedule_result = ryokourent_validate_rental_schedule($start_raw, $end_raw);
+    if (!$schedule_result['is_valid']) {
+        return array(
+            'success'    => false,
+            'code'       => 'invalid_schedule',
+            'message'    => __('Jadwal sewa yang dipilih tidak valid atau berada di luar jam operasional (07:00 – 23:00 WIB).', 'ryokourent'),
+            'errors'     => $schedule_result['errors'],
+            'status'     => 400,
+            'clean_data' => array(),
+        );
+    }
+
+    // 5. Validate Customer Identity Data
     $customer_result = ryokourent_validate_customer_data($raw_data);
     if (!$customer_result['is_valid']) {
         return array(
@@ -291,7 +431,14 @@ function ryokourent_validate_booking_submission($raw_data = array()) {
 
     $clean = $customer_result['data'];
 
-    // 5. Validate Motor Selection
+    // Append Schedule Data
+    $clean['start_datetime'] = $schedule_result['start_iso'];
+    $clean['end_datetime']   = $schedule_result['end_iso'];
+    $clean['duration_hours'] = $schedule_result['duration_hours'];
+    $clean['total_days']     = $schedule_result['billable_days'];
+    $clean['duration_label'] = $schedule_result['summary_label'];
+
+    // 6. Validate Motor Selection
     $motor_id = isset($raw_data['rented_motor_id']) ? absint(wp_unslash($raw_data['rented_motor_id'])) : 0;
     if ($motor_id <= 0) {
         return array(
@@ -305,7 +452,21 @@ function ryokourent_validate_booking_submission($raw_data = array()) {
     }
     $clean['rented_motor_id'] = $motor_id;
 
-    // 6. Validate Pickup Location
+    // 7. Calculate Server-Side Authoritative Pricing (Tamper-Proof)
+    if (function_exists('ryokourent_calculate_booking_quote')) {
+        $quote = ryokourent_calculate_booking_quote($motor_id, $start_raw, $end_raw);
+        $clean['total_price']           = $quote['total_price'];
+        $clean['formatted_price']       = $quote['formatted_price'];
+        $clean['requires_consultation'] = !empty($quote['requires_consultation']);
+        $clean['price_breakdown']       = isset($quote['breakdown']) ? $quote['breakdown'] : array();
+    } else {
+        $clean['total_price']           = 0;
+        $clean['formatted_price']       = 'Rp 0';
+        $clean['requires_consultation'] = false;
+        $clean['price_breakdown']       = array();
+    }
+
+    // 8. Validate Pickup Location
     $pickup = isset($raw_data['pickup_location']) ? sanitize_text_field(wp_unslash($raw_data['pickup_location'])) : '';
     $allowed_pickups = array('Pool Dinoyo', 'Pool Batu', 'Stasiun Malang', 'Hotel/Homestay');
     if (empty($pickup) || !in_array($pickup, $allowed_pickups, true)) {
@@ -313,20 +474,16 @@ function ryokourent_validate_booking_submission($raw_data = array()) {
     }
     $clean['pickup_location'] = $pickup;
 
-    // 7. Destination Route
+    // 9. Destination Route
     $route = isset($raw_data['trip_destination']) ? sanitize_key(wp_unslash($raw_data['trip_destination'])) : 'malang_batu';
     if ($route !== 'bromo') {
         $route = 'malang_batu';
     }
     $clean['trip_destination'] = $route;
 
-    // 8. Rental Notes (Optional)
+    // 10. Rental Notes (Optional)
     $notes = isset($raw_data['rental_notes']) ? sanitize_text_field(wp_unslash($raw_data['rental_notes'])) : '';
     $clean['rental_notes'] = $notes;
-
-    // 9. Datetime Schedule (Raw pass-through for TASK-013 & TASK-015 validation)
-    $clean['start_datetime'] = isset($raw_data['start_datetime']) ? sanitize_text_field(wp_unslash($raw_data['start_datetime'])) : '';
-    $clean['end_datetime']   = isset($raw_data['end_datetime']) ? sanitize_text_field(wp_unslash($raw_data['end_datetime'])) : '';
 
     return array(
         'success'    => true,
@@ -337,6 +494,36 @@ function ryokourent_validate_booking_submission($raw_data = array()) {
         'clean_data' => $clean,
     );
 }
+
+/**
+ * AJAX Handler for Real-Time Rental Duration Calculation.
+ *
+ * @since 1.0.0
+ * @return void Sends JSON response.
+ */
+function ryokourent_ajax_calculate_duration() {
+    $start_str = isset($_POST['start_datetime']) ? sanitize_text_field(wp_unslash($_POST['start_datetime'])) : '';
+    $end_str   = isset($_POST['end_datetime']) ? sanitize_text_field(wp_unslash($_POST['end_datetime'])) : '';
+
+    $result = ryokourent_validate_rental_schedule($start_str, $end_str);
+
+    if (!$result['is_valid']) {
+        wp_send_json_error(array(
+            'message' => reset($result['errors']),
+            'errors'  => $result['errors'],
+        ), 400);
+    }
+
+    wp_send_json_success(array(
+        'duration_hours' => $result['duration_hours'],
+        'billable_days'  => $result['billable_days'],
+        'summary_label'  => $result['summary_label'],
+        'start_iso'      => $result['start_iso'],
+        'end_iso'        => $result['end_iso'],
+    ), 200);
+}
+add_action('wp_ajax_ryokourent_calculate_duration', 'ryokourent_ajax_calculate_duration');
+add_action('wp_ajax_nopriv_ryokourent_calculate_duration', 'ryokourent_ajax_calculate_duration');
 
 /**
  * AJAX Handler for Booking Form Submission (Public & Logged-in).

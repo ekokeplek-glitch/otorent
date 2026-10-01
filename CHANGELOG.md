@@ -8,6 +8,28 @@ Format penulisan berpedoman pada [Keep a Changelog](https://keepachangelog.com/i
 ## [Unreleased] - 2026-10-01
 
 ### Added
+- **Fase 3 (TASK-014: Kalkulasi Harga Paket Harian, Mingguan, dan Bulanan):**
+  - Pembuatan modul mesin penetapan harga `wp-content/plugins/ryokourent-core/includes/pricing.php`:
+    - Fungsi `ryokourent_calculate_optimal_rental_price()`: menghitung kombinasi paket termurah (*best-rate guarantee*) dari paket bulanan (30 hari), mingguan (7 hari), dan harian (24 jam dengan toleransi 2 jam).
+    - Optimasi diskon otomatis (misal: sewa 6 hari otomatis mengambil paket mingguan Rp 500.000 jika lebih hemat daripada tarif harian Rp 510.000).
+    - Kalkulasi sewa bertingkat (misal: 35 hari terhitung 1 bulan Rp 1.600.000 + 5 hari Rp 425.000 = Rp 2.025.000).
+    - Deteksi motor berharga custom/placeholder (`daily <= 0`) dengan penandaan `requires_consultation => true` dan label `"Konsultasi Admin WA"`.
+    - Pendaftaran endpoint AJAX `ryokourent_get_price_quote` untuk kalkulasi tarif server-authoritative.
+  - Integrasi ke formulir booking di `wp-content/plugins/ryokourent-core/includes/booking.php`: menghitung ulang total tarif secara mutlak di backend tanpa mempercayai data kiriman harga dari browser DevTools.
+  - Pembuatan automated unit test `wp-content/plugins/ryokourent-core/tests/test-pricing-calculation.php` (13 pengujian skenario sewa 1 hari, 3 hari, 7 hari, 35 hari, optimasi 6 hari, dan penanganan motor tanpa harga).
+- **Fase 3 (TASK-013: Kalkulasi Durasi Sewa & Jam Operasional):**
+  - Penambahan fungsi kalkulasi durasi dan jadwal server-side `ryokourent_validate_rental_schedule()` pada `wp-content/plugins/ryokourent-core/includes/booking.php`:
+    - Menghitung durasi jam presisi dalam zona waktu `Asia/Jakarta` (WIB).
+    - Menerapkan aturan toleransi keterlambatan (*overtime*) 2 jam: hingga 26 jam terhitung 1 hari, 26.5 jam terhitung 2 hari, dan 56.5 jam terhitung 3 hari.
+    - Menegakkan batas jam operasional serah terima unit (07:00 – 23:00 WIB) baik untuk waktu mulai maupun waktu selesai.
+    - Menolak rentang waktu tidak valid (`end <= start`) dan durasi sewa di bawah 1 jam.
+    - Mendaftarkan endpoint AJAX `ryokourent_calculate_duration` untuk perhitungan durasi real-time.
+  - Pembaruan skrip interaktif `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`:
+    - Event listener instan pada input `#start_datetime` dan `#end_datetime`.
+    - Pengecekan client-side jam operasional 07:00–23:00 WIB dan validasi rentang tanggal.
+    - Pembaruan label UI `#ryokou-live-duration` ("X Hari (~Y Jam)") secara instan serta pembaruan kartu kalkulasi biaya.
+    - Intersepsi pencegahan submit form jika jadwal sewa berada di luar jam operasional.
+  - Pembuatan automated unit test `wp-content/plugins/ryokourent-core/tests/test-duration-calculation.php` (17 pengujian skenario durasi, toleransi 2 jam, jam operasional, dan rentang tanggal).
 - **Fase 3 (TASK-012: Validasi Data Pelanggan & Anti-Spam):**
   - Pembuatan modul server-side `wp-content/plugins/ryokourent-core/includes/booking.php`:
     - Validasi identitas pelanggan sesuai e-KTP (nama minimal 3 karakter, alamat KTP, alamat menginap di Malang/Batu).

@@ -40,6 +40,10 @@
     const ktpInput = bookingForm.querySelector('#customer_ktp_address');
     const stayInput = bookingForm.querySelector('#customer_stay_address');
     const motorSelect = bookingForm.querySelector('#rented_motor_id');
+    const startInput = bookingForm.querySelector('#start_datetime');
+    const endInput = bookingForm.querySelector('#end_datetime');
+    const liveDuration = document.getElementById('ryokou-live-duration');
+    const livePrice = document.getElementById('ryokou-live-price');
     const submitBtn = bookingForm.querySelector('#ryokou-btn-submit') || bookingForm.querySelector('button[type="submit"]');
 
     // Helper: Normalize phone string to digits
@@ -211,6 +215,118 @@
       });
     }
 
+    // Helper: Check Operating Hours (07:00 - 23:00 WIB)
+    function isWithinOperatingHours(dateStr) {
+      if (!dateStr) return false;
+      const parts = dateStr.split('T');
+      if (parts.length < 2) return false;
+      const timeParts = parts[1].split(':');
+      if (timeParts.length < 2) return false;
+      const hour = parseInt(timeParts[0], 10);
+      const min = parseInt(timeParts[1], 10);
+      const totalMins = hour * 60 + min;
+      // 07:00 is 420 mins; 23:00 is 1380 mins
+      return totalMins >= 420 && totalMins <= 1380;
+    }
+
+    // Helper: Real-time duration and price calculation
+    function updateLiveDurationAndPrice() {
+      if (!startInput || !endInput) return;
+      const startVal = startInput.value;
+      const endVal = endInput.value;
+
+      if (!startVal || !endVal) return;
+
+      const startDate = new Date(startVal);
+      const endDate = new Date(endVal);
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        if (liveDuration) liveDuration.textContent = 'Jadwal belum valid';
+        return;
+      }
+
+      let scheduleValid = true;
+
+      // Operating hours check for start time
+      if (!isWithinOperatingHours(startVal)) {
+        setFieldError(startInput, 'Jam mulai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+        scheduleValid = false;
+      } else {
+        clearFieldError(startInput);
+      }
+
+      // Check end datetime after start datetime
+      if (endDate <= startDate) {
+        setFieldError(endInput, 'Waktu selesai sewa harus lebih akhir dari waktu mulai sewa.');
+        scheduleValid = false;
+      } else if (!isWithinOperatingHours(endVal)) {
+        setFieldError(endInput, 'Jam selesai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+        scheduleValid = false;
+      } else {
+        clearFieldError(endInput);
+      }
+
+      if (!scheduleValid) {
+        if (liveDuration) liveDuration.textContent = 'Jadwal belum valid';
+        return;
+      }
+
+      const diffMs = endDate.getTime() - startDate.getTime();
+      const diffHours = Math.round((diffMs / (1000 * 60 * 60)) * 10) / 10;
+
+      // Minimum duration check
+      if (diffHours < 1) {
+        setFieldError(endInput, 'Durasi sewa minimal adalah 1 jam.');
+        if (liveDuration) liveDuration.textContent = 'Minimal 1 Jam';
+        return;
+      }
+
+      // 2-hour tolerance overtime calculation:
+      // - Up to 26 hours = 1 day
+      // - Over 26 hours: subtract 24h, deduct 2h tolerance, ceil to 24h intervals
+      let billableDays = 1;
+      if (diffHours <= 26) {
+        billableDays = 1;
+      } else {
+        const extraHours = diffHours - 24;
+        billableDays = 1 + Math.ceil(Math.max(0, extraHours - 2) / 24);
+      }
+      billableDays = Math.max(1, billableDays);
+
+      const formattedHours = (diffHours % 1 === 0) ? diffHours.toFixed(0) : diffHours.toFixed(1);
+      const durationLabel = billableDays + ' Hari (~' + formattedHours + ' Jam)';
+
+      if (liveDuration) {
+        liveDuration.textContent = durationLabel;
+      }
+
+      // Live price calculation based on selected motor rate
+      if (motorSelect && livePrice) {
+        const selectedOpt = motorSelect.options[motorSelect.selectedIndex];
+        const dailyPrice = selectedOpt ? parseFloat(selectedOpt.getAttribute('data-price-daily') || '0') : 0;
+        if (dailyPrice > 0) {
+          const totalPrice = billableDays * dailyPrice;
+          livePrice.textContent = 'Rp ' + totalPrice.toLocaleString('id-ID');
+        } else {
+          livePrice.textContent = 'Tanya Admin';
+        }
+      }
+    }
+
+    if (startInput) {
+      startInput.addEventListener('change', updateLiveDurationAndPrice);
+      startInput.addEventListener('input', updateLiveDurationAndPrice);
+    }
+    if (endInput) {
+      endInput.addEventListener('change', updateLiveDurationAndPrice);
+      endInput.addEventListener('input', updateLiveDurationAndPrice);
+    }
+    if (motorSelect) {
+      motorSelect.addEventListener('change', updateLiveDurationAndPrice);
+    }
+    // Run initial calculation
+    updateLiveDurationAndPrice();
+
     // Form submit validation & AJAX transmission
     bookingForm.addEventListener('submit', function (e) {
       clearFormAlert();
@@ -226,7 +342,36 @@
         clearFieldError(motorSelect);
       }
 
-      // 2. Name check
+      // 2. Schedule Validation check (Operating Hours & Duration)
+      if (!startInput || !startInput.value) {
+        setFieldError(startInput, 'Waktu mulai sewa wajib ditentukan.');
+        hasError = true;
+        if (!firstErrorField) firstErrorField = startInput;
+      } else if (!isWithinOperatingHours(startInput.value)) {
+        setFieldError(startInput, 'Jam mulai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+        hasError = true;
+        if (!firstErrorField) firstErrorField = startInput;
+      } else {
+        clearFieldError(startInput);
+      }
+
+      if (!endInput || !endInput.value) {
+        setFieldError(endInput, 'Waktu selesai sewa wajib ditentukan.');
+        hasError = true;
+        if (!firstErrorField) firstErrorField = endInput;
+      } else if (startInput && startInput.value && new Date(endInput.value) <= new Date(startInput.value)) {
+        setFieldError(endInput, 'Waktu selesai sewa harus lebih akhir dari waktu mulai sewa.');
+        hasError = true;
+        if (!firstErrorField) firstErrorField = endInput;
+      } else if (!isWithinOperatingHours(endInput.value)) {
+        setFieldError(endInput, 'Jam selesai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+        hasError = true;
+        if (!firstErrorField) firstErrorField = endInput;
+      } else {
+        clearFieldError(endInput);
+      }
+
+      // 3. Name check
       if (!nameInput || nameInput.value.trim().length < 3) {
         setFieldError(nameInput, config.strings.errName);
         hasError = true;

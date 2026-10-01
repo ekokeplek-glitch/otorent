@@ -184,26 +184,31 @@ Dokumen ini berisi rincian urutan 30 task proyek Ryokourent sesuai dengan arsite
 
 ---
 
-### TASK-013: Buat Kalkulasi Durasi Sewa
+### TASK-013: Buat Kalkulasi Durasi Sewa [DONE]
+* **Status:** Selesai (DONE) - 2026-10-01
 * **Tujuan:** Menghitung selisih waktu sewa secara real-time berdasarkan tanggal & jam mulai serta tanggal & jam selesai di zona waktu `Asia/Jakarta` (WIB).
 * **File yang Dibuat/Diubah:**
-  * `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`
   * `wp-content/plugins/ryokourent-core/includes/booking.php`
+  * `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`
+  * `wp-content/plugins/ryokourent-core/tests/test-duration-calculation.php`
 * **Dependensi:** TASK-011.
-* **Kriteria Selesai:** UI menampilkan indikator "Durasi: X Hari (Y Jam)" secara instan saat pengguna mengubah tanggal/jam. Jam wajib berada pada rentang operasional (07:00 – 23:00 WIB).
-* **Cara Pengujian:** Set waktu mulai 02/10/2026 08:30 dan selesai 04/10/2026 17:00, verifikasi kalkulasi menghasilkan 3 Hari (~56.5 Jam) dengan toleransi overtime 2 jam.
-* **Risiko:** Kesalahan perhitungan karena perbedaan zona waktu browser penyewa (selalu paksa zona WIB di server).
+* **Kriteria Selesai:** UI menampilkan indikator "Durasi: X Hari (~Y Jam)" secara instan saat pengguna mengubah tanggal/jam. Jam wajib berada pada rentang operasional (07:00 – 23:00 WIB). Toleransi keterlambatan sewa (overtime) s/d 2 jam terhitung tepat. Waktu selesai sewa divalidasi harus lebih akhir dari waktu mulai.
+* **Cara Pengujian:** Jalankan unit test `test-duration-calculation.php` untuk memverifikasi skenario mulai 02/10/2026 08:30 dan selesai 04/10/2026 17:00 menghasilkan 3 Hari (~56.5 Jam), batas overtime 2 jam, jam operasional 07:00-23:00 WIB, dan penolakan tanggal mundur.
+* **Risiko:** Kesalahan perhitungan karena perbedaan zona waktu browser penyewa (teratasi dengan selalu memaksa zona WIB `Asia/Jakarta` di server dan normalisasi Date object).
 
 ---
 
-### TASK-014: Buat Kalkulasi Harga Harian, Mingguan, dan Bulanan
+### TASK-014: Buat Kalkulasi Harga Harian, Mingguan, dan Bulanan [DONE]
+* **Status:** Selesai (DONE) - 2026-10-01
 * **Tujuan:** Membangun modul `pricing.php` untuk menghitung tarif sewa otomatis di sisi server (paket harian 24 jam dengan toleransi overtime 2 jam, paket mingguan 7 hari, bulanan 30 hari).
 * **File yang Dibuat/Diubah:**
   * `wp-content/plugins/ryokourent-core/includes/pricing.php`
+  * `wp-content/plugins/ryokourent-core/includes/booking.php`
+  * `wp-content/plugins/ryokourent-core/tests/test-pricing-calculation.php`
 * **Dependensi:** TASK-013.
-* **Kriteria Selesai:** Server menghitung total tarif berdasarkan kombinasi termurah. Client hanya mengirim tanggal/jam; server tidak mempercayai data kiriman harga dari client. Harga placeholder/kosong ditolak dari booking instan dan diarahkan ke konsultasi WA.
-* **Cara Pengujian:** Jalankan unit test kalkulasi untuk sewa 1 hari, 3 hari, 7 hari, dan 35 hari.
-* **Risiko:** Manipulasi harga di browser DevTools (teratasi karena server menghitung ulang secara independen).
+* **Kriteria Selesai:** Server menghitung total tarif berdasarkan kombinasi termurah (best-rate guarantee). Client hanya mengirim tanggal/jam dan motor ID; server tidak mempercayai data kiriman harga dari client. Harga placeholder/kosong ditolak dari booking instan dan diarahkan ke konsultasi WA.
+* **Cara Pengujian:** Jalankan unit test `test-pricing-calculation.php` untuk kalkulasi sewa 1 hari, 3 hari, 7 hari, 35 hari, optimasi 6 hari, dan penanganan motor tanpa harga pasti.
+* **Risiko:** Manipulasi harga di browser DevTools (teratasi karena server menghitung ulang secara independen dan mutlak).
 
 ---
 

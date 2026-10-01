@@ -17,9 +17,9 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
   - `feature/availability` (Fitur pencegahan double booking & pengecekan stok unit)
   - `feature/whatsapp` (Fitur generator draft pesan & URL WhatsApp)
   - `feature/admin-dashboard` (Fitur dashboard admin & pelaporan operasional)
-* **Task Terakhir Selesai:** `TASK-012: Buat Validasi Data Pelanggan & Anti-Spam`
+* **Task Terakhir Selesai:** `TASK-014: Buat Kalkulasi Harga Harian, Mingguan, dan Bulanan`
 * **Status Task Terakhir:** **DONE (SELESAI)**
-* **Task Selanjutnya:** `TASK-013: Buat Kalkulasi Durasi Sewa` (Menunggu perintah selanjutnya dari pengguna)
+* **Task Selanjutnya:** `TASK-015: Buat Validasi Tanggal dan Jam (Operational Hours)` (Menunggu perintah selanjutnya dari pengguna)
 
 ---
 
@@ -39,7 +39,48 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
 | **TASK-010** | Status Booking Kustom | FASE 3 | **DONE** | TASK-009 | 2026-09-30 |
 | **TASK-011** | Form Booking Dasar | FASE 3 | **DONE** | TASK-005 | 2026-09-30 |
 | **TASK-012** | Validasi Pelanggan & Anti-Spam | FASE 3 | **DONE** | TASK-011 | 2026-10-01 |
-| **TASK-013** | Kalkulasi Durasi Sewa | FASE 3 | **PENDING** | TASK-011 | - |
+| **TASK-013** | Kalkulasi Durasi Sewa | FASE 3 | **DONE** | TASK-011 | 2026-10-01 |
+| **TASK-014** | Kalkulasi Harga Paket Sewa | FASE 3 | **DONE** | TASK-013 | 2026-10-01 |
+| **TASK-015** | Validasi Tanggal dan Jam | FASE 3 | **PENDING** | TASK-013 | - |
+
+---
+
+## 3. Komponen yang Telah Diimplementasikan pada TASK-014
+1. **Modul Pricing Server-Side (`wp-content/plugins/ryokourent-core/includes/pricing.php`):**
+   - Fungsi `ryokourent_calculate_optimal_rental_price`:
+     - Menghitung tarif sewa otomatis di sisi server secara *tamper-proof* berdasarkan kombinasi termurah (*best-rate guarantee*) dari paket bulanan (30 hari), paket mingguan (7 hari), dan harian (24 jam).
+     - Menangani kasus diskon bertingkat (misal: sewa 6 hari otomatis mengambil tarif paket mingguan Rp 500.000 jika lebih hemat daripada 6 x Rp 85.000 = Rp 510.000).
+     - Menghitung sewa jangka menengah (misal: 35 hari = 1 Bulan Rp 1.600.000 + 5 Hari Rp 425.000 = Rp 2.025.000).
+     - Mendeteksi harga placeholder/kosong (`daily <= 0`) dan secara elegan menandai `requires_consultation => true` dengan label `"Konsultasi Admin WA"`.
+   - Fungsi `ryokourent_calculate_booking_quote`:
+     - Menggabungkan durasi sewa presisi, toleransi keterlambatan 2 jam, data tarif motor, dan menghasilkan objek quote lengkap.
+   - Endpoint AJAX `ryokourent_get_price_quote` untuk kalkulasi tarif server-authoritative secara instan.
+2. **Integrasi Validasi Form Submission (`wp-content/plugins/ryokourent-core/includes/booking.php`):**
+   - Menghitung ulang total tarif secara mutlak di backend pada fungsi `ryokourent_validate_booking_submission()` tanpa mempercayai nilai harga yang dikirim dari browser DevTools.
+   - Menyertakan `total_price`, `formatted_price`, `requires_consultation`, dan `price_breakdown` ke dalam data pemesanan.
+3. **Automated Unit Test Suite:**
+   - `wp-content/plugins/ryokourent-core/tests/test-pricing-calculation.php` (13 pengujian skenario sewa 1 hari, 3 hari, 7 hari, 35 hari, optimasi 6 hari, dan motor tanpa harga).
+
+---
+
+## 3. Komponen yang Telah Diimplementasikan pada TASK-013
+1. **Modul Kalkulasi Jadwal & Durasi Server-Side (`wp-content/plugins/ryokourent-core/includes/booking.php`):**
+   - Fungsi `ryokourent_validate_rental_schedule`:
+     - Memvalidasi rentang tanggal dan jam sewa di zona waktu `Asia/Jakarta` (WIB).
+     - Menegakkan batas jam operasional serah terima unit (07:00 – 23:00 WIB). Menolak waktu terlalu pagi (< 07:00) atau terlalu malam (> 23:00).
+     - Memvalidasi `end_datetime > start_datetime` dan durasi sewa minimal 1 jam.
+     - Menghitung durasi jam presisi dan hari sewa tagihan dengan toleransi *overtime* 2 jam (24 jam = 1 hari, 26 jam = 1 hari, 26.5 jam = 2 hari, 56.5 jam = 3 hari).
+     - Mengembalikan label ringkasan format Indonesia (misal: "3 Hari (~56.5 Jam)").
+   - Integrasi ke `ryokourent_validate_booking_submission`: menyertakan `duration_hours`, `billable_days`, dan `duration_label` ke dalam objek data bersih (*clean_data*).
+   - Penambahan endpoint AJAX real-time `ryokourent_calculate_duration` untuk perhitungan durasi dari server.
+2. **Kalkulator Durasi Interaktif Client-Side (`wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`):**
+   - Event listener live (`change`/`input`) pada input `#start_datetime` dan `#end_datetime`.
+   - Validasi instan jam operasional 07:00–23:00 WIB dengan pesan peringatan di bawah input.
+   - Pengecekan waktu selesai harus lebih akhir dari waktu mulai.
+   - Perenderan dinamis label durasi real-time pada `#ryokou-live-duration` serta pembaruan estimasi biaya harian.
+   - Pengecekan jadwal sewa pada submit form agar tidak mengirimkan jadwal yang tidak valid.
+3. **Automated Unit Test Suite:**
+   - `wp-content/plugins/ryokourent-core/tests/test-duration-calculation.php` (17 pengujian skenario durasi, toleransi 2 jam, jam operasional, dan rentang tanggal).
 
 ---
 
