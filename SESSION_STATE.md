@@ -17,9 +17,9 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
   - `feature/availability` (Fitur pencegahan double booking & pengecekan stok unit)
   - `feature/whatsapp` (Fitur generator draft pesan & URL WhatsApp)
   - `feature/admin-dashboard` (Fitur dashboard admin & pelaporan operasional)
-* **Task Terakhir Selesai:** `TASK-014: Buat Kalkulasi Harga Harian, Mingguan, dan Bulanan`
+* **Task Terakhir Selesai:** `TASK-015: Buat Validasi Tanggal dan Jam (Operational Hours)`
 * **Status Task Terakhir:** **DONE (SELESAI)**
-* **Task Selanjutnya:** `TASK-015: Buat Validasi Tanggal dan Jam (Operational Hours)` (Menunggu perintah selanjutnya dari pengguna)
+* **Task Selanjutnya:** `TASK-016: Buat Validasi Ketersediaan Unit & Perlindungan Privasi Stok` (Menunggu perintah selanjutnya dari pengguna)
 
 ---
 
@@ -41,7 +41,23 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
 | **TASK-012** | Validasi Pelanggan & Anti-Spam | FASE 3 | **DONE** | TASK-011 | 2026-10-01 |
 | **TASK-013** | Kalkulasi Durasi Sewa | FASE 3 | **DONE** | TASK-011 | 2026-10-01 |
 | **TASK-014** | Kalkulasi Harga Paket Sewa | FASE 3 | **DONE** | TASK-013 | 2026-10-01 |
-| **TASK-015** | Validasi Tanggal dan Jam | FASE 3 | **PENDING** | TASK-013 | - |
+| **TASK-015** | Validasi Tanggal dan Jam | FASE 3 | **DONE** | TASK-013 | 2026-10-01 |
+| **TASK-016** | Validasi Ketersediaan Unit | FASE 3 | **PENDING** | TASK-005, TASK-010 | - |
+
+---
+
+## 3. Komponen yang Telah Diimplementasikan pada TASK-015
+1. **Validasi Jadwal & Jam Operasional Pool Backend (`wp-content/plugins/ryokourent-core/includes/booking.php`):**
+   - Menegakkan batas jam pelayanan serah terima unit di pool secara ketat antara pukul 07:00 – 23:00 WIB. Jam mulai 02:00 WIB atau di luar rentang resmi langsung ditolak dengan status HTTP 400 (`invalid_schedule`).
+   - Mencegah pemilihan tanggal & waktu mulai di masa lalu (`start_datetime < now_wib`) dengan buffer pengisian formulir 15 menit.
+   - Memvalidasi rentang waktu sewa: waktu selesai wajib setelah waktu mulai (`end_datetime > start_datetime`) dan durasi sewa minimal 1 jam.
+   - Kompatibilitas lintas platform: menangani format standar ISO string (`Y-m-d\TH:i`) dari perangkat seluler Android dan iOS.
+2. **Validasi Interaktif & Progressive Enhancement Frontend (`wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js` & `public/forms.php`):**
+   - Penambahan atribut `min` pada field input `datetime-local` di markup HTML (`forms.php`) dan pembaruan dinamis `endInput.min = startInput.value` di JavaScript saat waktu mulai diubah.
+   - Pengecekan instan di client-side: mencegah tanggal masa lalu dan jam di luar operasional pool dengan penandaan visual `.has-error` dan pesan peringatan di bawah input.
+   - Pengecekan pada event form submit agar tidak mengirimkan form dengan jadwal salah.
+3. **Automated Unit Test Suite:**
+   - `wp-content/plugins/ryokourent-core/tests/test-operating-hours.php` (14 pengujian skenario penolakan jam 02:00 WIB, jam operasional 07:00–23:00 WIB, tanggal masa lalu, tanggal terbalik, format ISO, dan integrasi submission AJAX).
 
 ---
 

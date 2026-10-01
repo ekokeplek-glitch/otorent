@@ -290,13 +290,19 @@ function ryokourent_validate_rental_schedule($start_str, $end_str, $tolerance_ho
         $errors['end_datetime'] = __('Waktu selesai sewa harus lebih akhir dari waktu mulai sewa.', 'ryokourent');
     }
 
+    // Check past date: start datetime must not be in the past (with 15-min submission buffer)
+    $now_wib = new DateTime('now', $tz);
+    if ($start_dt->getTimestamp() < ($now_wib->getTimestamp() - 900)) {
+        $errors['start_datetime'] = __('Waktu mulai sewa tidak boleh berada di masa lalu.', 'ryokourent');
+    }
+
     // Check operating hours for start & end time (07:00 - 23:00 WIB)
     if (function_exists('ryokourent_is_within_operating_hours')) {
         if (!ryokourent_is_within_operating_hours($clean_start)) {
-            $errors['start_datetime'] = __('Jam mulai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).', 'ryokourent');
+            $errors['start_datetime'] = __('Jam mulai sewa harus berada dalam jam operasional pool (07:00 – 23:00 WIB).', 'ryokourent');
         }
         if (!ryokourent_is_within_operating_hours($clean_end)) {
-            $errors['end_datetime'] = __('Jam selesai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).', 'ryokourent');
+            $errors['end_datetime'] = __('Jam selesai sewa harus berada dalam jam operasional pool (07:00 – 23:00 WIB).', 'ryokourent');
         }
     }
 

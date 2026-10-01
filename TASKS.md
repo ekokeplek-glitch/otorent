@@ -212,15 +212,18 @@ Dokumen ini berisi rincian urutan 30 task proyek Ryokourent sesuai dengan arsite
 
 ---
 
-### TASK-015: Buat Validasi Tanggal dan Jam (Operational Hours)
+### TASK-015: Buat Validasi Tanggal dan Jam (Operational Hours) [DONE]
+* **Status:** Selesai (DONE) - 2026-10-01
 * **Tujuan:** Membatasi pilihan jam sewa hanya pada jam operasional pool (07.00 – 23.00 WIB) dan mencegah pemilihan tanggal selesai sebelum tanggal mulai atau tanggal di masa lalu.
 * **File yang Dibuat/Diubah:**
   * `wp-content/plugins/ryokourent-core/includes/booking.php`
   * `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`
+  * `wp-content/plugins/ryokourent-core/public/forms.php`
+  * `wp-content/plugins/ryokourent-core/tests/test-operating-hours.php`
 * **Dependensi:** TASK-013.
-* **Kriteria Selesai:** Input jam di luar 07.00 - 23.00 WIB ditolak dengan pemberitahuan jam operasional resmi.
-* **Cara Pengujian:** Kirim request dengan jam mulai 02:00 WIB atau tanggal selesai < tanggal mulai; pastikan server memblokir request.
-* **Risiko:** Format tanggal berbeda antara browser Android dan iOS (gunakan format ISO standar `Y-m-d H:i`).
+* **Kriteria Selesai:** Input jam di luar 07.00 - 23.00 WIB ditolak dengan pemberitahuan jam operasional resmi pool. Waktu mulai di masa lalu diblokir. Tanggal selesai sebelum tanggal mulai diblokir. Format tanggal ISO didukung penuh lintas platform.
+* **Cara Pengujian:** Jalankan unit test `test-operating-hours.php` untuk memvalidasi request jam 02:00 WIB, request tanggal masa lalu, dan request tanggal selesai < tanggal mulai yang semuanya sukses diblokir server.
+* **Risiko:** Format tanggal berbeda antara browser Android dan iOS (teratasi dengan normalisasi ISO string standar `Y-m-d\TH:i` dan DateTime parser WIB).
 
 ---
 

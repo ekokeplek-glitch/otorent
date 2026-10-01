@@ -83,6 +83,7 @@ function ryokourent_render_booking_form($args = array()) {
 
     $start_val = $default_start->format('Y-m-d\TH:i');
     $end_val   = $default_end->format('Y-m-d\TH:i');
+    $min_start = $now_wib->format('Y-m-d\TH:i');
 
     ob_start();
     ?>
@@ -210,6 +211,7 @@ function ryokourent_render_booking_form($args = array()) {
                                 id="start_datetime" 
                                 class="ryokou-input-text" 
                                 value="<?php echo esc_attr($start_val); ?>"
+                                min="<?php echo esc_attr($min_start); ?>"
                                 required 
                             />
                             <span class="ryokou-hint"><?php esc_html_e('Jam pelayanan serah terima unit: 07.00 – 23.00 WIB', 'ryokourent'); ?></span>
@@ -226,6 +228,7 @@ function ryokourent_render_booking_form($args = array()) {
                                 id="end_datetime" 
                                 class="ryokou-input-text" 
                                 value="<?php echo esc_attr($end_val); ?>"
+                                min="<?php echo esc_attr($start_val); ?>"
                                 required 
                             />
                             <span class="ryokou-hint"><?php esc_html_e('Toleransi keterlambatan sewa (overtime) s/d 2 jam', 'ryokourent'); ?></span>

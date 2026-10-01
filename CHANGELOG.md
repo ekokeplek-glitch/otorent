@@ -8,6 +8,19 @@ Format penulisan berpedoman pada [Keep a Changelog](https://keepachangelog.com/i
 ## [Unreleased] - 2026-10-01
 
 ### Added
+- **Fase 3 (TASK-015: Validasi Tanggal dan Jam Operasional Pool):**
+  - Penyempurnaan modul backend `wp-content/plugins/ryokourent-core/includes/booking.php`:
+    - Menegakkan batas jam pelayanan serah terima unit di pool secara ketat antara pukul 07:00 – 23:00 WIB (request jam 02:00 WIB atau di luar jam buka otomatis diblokir dengan kode `invalid_schedule` dan HTTP 400).
+    - Memvalidasi pencegahan tanggal di masa lalu (`start_datetime < now_wib`) dengan buffer pengisian form 15 menit.
+    - Menolak pemilihan tanggal selesai yang mendahului atau sama dengan tanggal mulai (`end_datetime <= start_datetime`).
+    - Standardisasi parsing datetime string lintas perangkat seluler (Android & iOS) dengan format ISO `Y-m-d\TH:i`.
+  - Pembaruan formulir publik `wp-content/plugins/ryokourent-core/public/forms.php`:
+    - Menambahkan atribut pembatas HTML5 `min` pada input `start_datetime` dan `end_datetime`.
+  - Pembaruan skrip interaktif `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`:
+    - Pembaruan dinamis atribut `min` pada input selesai (`endInput.min = startInput.value`).
+    - Validasi instan di browser untuk mencegah tanggal masa lalu dan jam di luar rentang operasional pool 07:00–23:00 WIB.
+    - Pengecekan pada submit formulir untuk mencegah pengiriman jadwal yang tidak sah.
+  - Pembuatan automated unit test `wp-content/plugins/ryokourent-core/tests/test-operating-hours.php` (14 pengujian skenario penolakan jam 02:00 WIB, jam operasional 07:00–23:00 WIB, tanggal masa lalu, tanggal mundur, dan integrasi submission AJAX).
 - **Fase 3 (TASK-014: Kalkulasi Harga Paket Harian, Mingguan, dan Bulanan):**
   - Pembuatan modul mesin penetapan harga `wp-content/plugins/ryokourent-core/includes/pricing.php`:
     - Fungsi `ryokourent_calculate_optimal_rental_price()`: menghitung kombinasi paket termurah (*best-rate guarantee*) dari paket bulanan (30 hari), mingguan (7 hari), dan harian (24 jam dengan toleransi 2 jam).

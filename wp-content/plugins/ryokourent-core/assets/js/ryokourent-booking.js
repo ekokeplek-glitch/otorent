@@ -246,13 +246,23 @@
       }
 
       let scheduleValid = true;
+      const nowBuffer = Date.now() - (15 * 60 * 1000); // 15 mins buffer
 
-      // Operating hours check for start time
-      if (!isWithinOperatingHours(startVal)) {
-        setFieldError(startInput, 'Jam mulai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+      // Past date check
+      if (startDate.getTime() < nowBuffer) {
+        setFieldError(startInput, 'Waktu mulai sewa tidak boleh berada di masa lalu.');
+        scheduleValid = false;
+      } else if (!isWithinOperatingHours(startVal)) {
+        // Operating hours check for start time
+        setFieldError(startInput, 'Jam mulai sewa harus berada dalam jam operasional pool (07:00 – 23:00 WIB).');
         scheduleValid = false;
       } else {
         clearFieldError(startInput);
+      }
+
+      // Update minimum end_datetime to match start_datetime
+      if (endInput) {
+        endInput.min = startVal;
       }
 
       // Check end datetime after start datetime
@@ -260,7 +270,7 @@
         setFieldError(endInput, 'Waktu selesai sewa harus lebih akhir dari waktu mulai sewa.');
         scheduleValid = false;
       } else if (!isWithinOperatingHours(endVal)) {
-        setFieldError(endInput, 'Jam selesai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+        setFieldError(endInput, 'Jam selesai sewa harus berada dalam jam operasional pool (07:00 – 23:00 WIB).');
         scheduleValid = false;
       } else {
         clearFieldError(endInput);
@@ -343,12 +353,17 @@
       }
 
       // 2. Schedule Validation check (Operating Hours & Duration)
+      const nowBuffer = Date.now() - (15 * 60 * 1000);
       if (!startInput || !startInput.value) {
         setFieldError(startInput, 'Waktu mulai sewa wajib ditentukan.');
         hasError = true;
         if (!firstErrorField) firstErrorField = startInput;
+      } else if (new Date(startInput.value).getTime() < nowBuffer) {
+        setFieldError(startInput, 'Waktu mulai sewa tidak boleh berada di masa lalu.');
+        hasError = true;
+        if (!firstErrorField) firstErrorField = startInput;
       } else if (!isWithinOperatingHours(startInput.value)) {
-        setFieldError(startInput, 'Jam mulai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+        setFieldError(startInput, 'Jam mulai sewa harus berada dalam jam operasional pool (07:00 – 23:00 WIB).');
         hasError = true;
         if (!firstErrorField) firstErrorField = startInput;
       } else {
@@ -364,7 +379,7 @@
         hasError = true;
         if (!firstErrorField) firstErrorField = endInput;
       } else if (!isWithinOperatingHours(endInput.value)) {
-        setFieldError(endInput, 'Jam selesai sewa harus berada dalam jam operasional layanan (07:00 – 23:00 WIB).');
+        setFieldError(endInput, 'Jam selesai sewa harus berada dalam jam operasional pool (07:00 – 23:00 WIB).');
         hasError = true;
         if (!firstErrorField) firstErrorField = endInput;
       } else {
