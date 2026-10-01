@@ -168,15 +168,19 @@ Dokumen ini berisi rincian urutan 30 task proyek Ryokourent sesuai dengan arsite
 
 ---
 
-### TASK-012: Buat Validasi Data Pelanggan & Anti-Spam
+### TASK-012: Buat Validasi Data Pelanggan & Anti-Spam [DONE]
+* **Status:** Selesai (DONE) - 2026-10-01
 * **Tujuan:** Memvalidasi nama pelanggan, nomor WhatsApp (format Indonesia `08...`), nomor kontak darurat keluarga (berbeda dari kontak utama), honeypot anti-spam, dan pembatasan laju pengiriman (rate-limiting via transient per IP).
 * **File yang Dibuat/Diubah:**
   * `wp-content/plugins/ryokourent-core/includes/booking.php`
   * `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`
+  * `wp-content/plugins/ryokourent-core/public/shortcodes.php`
+  * `wp-content/plugins/ryokourent-core/assets/css/ryokourent-public.css`
+  * `wp-content/plugins/ryokourent-core/tests/test-booking-validation.php`
 * **Dependensi:** TASK-011.
-* **Kriteria Selesai:** Form menolak nomor HP tidak valid (kurang dari 10 digit atau bukan format seluler Indonesia). Bot yang mengisi field honeypot langsung ditolak dengan status HTTP 400.
-* **Cara Pengujian:** Kirim form dengan data dummy salah atau honeypot terisi; pastikan submit gagal dengan pesan spesifik.
-* **Risiko:** Validasi nomor HP terlalu ketat hingga menolak nomor dengan spasi atau tanda hubung (gunakan normalisasi preg_replace).
+* **Kriteria Selesai:** Form menolak nomor HP tidak valid (kurang dari 10 digit atau bukan format seluler Indonesia). Nomor kontak darurat tidak boleh sama dengan nomor WhatsApp penyewa. Bot yang mengisi field honeypot langsung ditolak dengan status HTTP 400. Transient rate limiting membatasi frekuensi submit per IP.
+* **Cara Pengujian:** Jalankan unit test `test-booking-validation.php`, uji submission honeypot terisi, nomor WhatsApp format asing/pendek, kontak darurat duplikat, dan rate limit.
+* **Risiko:** Validasi nomor HP terlalu ketat hingga menolak nomor dengan spasi atau tanda hubung (teratasi dengan normalisasi `ryokourent_sanitize_phone()`).
 
 ---
 

@@ -40,6 +40,15 @@ function ryokourent_register_public_assets() {
         true
     );
 
+    // Booking validation and AJAX submission script
+    wp_register_script(
+        'ryokourent-booking',
+        RYOKOURENT_PLUGIN_URL . 'assets/js/ryokourent-booking.js',
+        array(),
+        RYOKOURENT_VERSION,
+        true
+    );
+
     $wa_number = get_option('ryokourent_wa_number', defined('RYOKOURENT_DEFAULT_WA_NUMBER') ? RYOKOURENT_DEFAULT_WA_NUMBER : '62895384017772');
     $clean_wa = preg_replace('/[^0-9]/', '', (string) $wa_number);
 
@@ -47,6 +56,23 @@ function ryokourent_register_public_assets() {
         'ajaxUrl'       => admin_url('admin-ajax.php'),
         'waNumber'      => $clean_wa,
         'bookingAnchor' => '#booking-form',
+    ));
+
+    wp_localize_script('ryokourent-booking', 'ryokouBookingConfig', array(
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce'   => wp_create_nonce('ryokourent_booking_form_action'),
+        'strings' => array(
+            'submitting'   => __('Memproses pesanan...', 'ryokourent'),
+            'submitText'   => __('Lanjutkan Pemesanan via WhatsApp', 'ryokourent'),
+            'errName'      => __('Nama lengkap minimal 3 karakter sesuai e-KTP.', 'ryokourent'),
+            'errPhone'     => __('Nomor WhatsApp harus nomor seluler Indonesia yang valid (10-15 digit, misal 081234567890).', 'ryokourent'),
+            'errEmergency' => __('Nomor kontak darurat keluarga harus valid dan tidak boleh sama dengan nomor WhatsApp Anda.', 'ryokourent'),
+            'errKtpAddress'  => __('Alamat KTP minimal 5 karakter.', 'ryokourent'),
+            'errStayAddress' => __('Tempat menginap di Malang/Batu minimal 3 karakter.', 'ryokourent'),
+            'errMotor'     => __('Silakan pilih model armada motor terlebih dahulu.', 'ryokourent'),
+            'errRateLimit' => __('Terlalu banyak permintaan pemesanan dalam waktu singkat. Mohon tunggu beberapa menit.', 'ryokourent'),
+            'errGeneral'   => __('Mohon periksa kembali isian formulir Anda.', 'ryokourent'),
+        ),
     ));
 }
 add_action('wp_enqueue_scripts', 'ryokourent_register_public_assets');
@@ -93,6 +119,7 @@ function ryokourent_booking_form_shortcode($atts = array()) {
     // Enqueue registered public assets
     wp_enqueue_style('ryokourent-public');
     wp_enqueue_script('ryokourent-filter');
+    wp_enqueue_script('ryokourent-booking');
 
     $parsed_atts = shortcode_atts(
         array(

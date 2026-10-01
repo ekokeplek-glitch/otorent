@@ -858,3 +858,51 @@
   max-width: 640px;
 }
 
+/* Form Alert Banner */
+.ryokou-form-alert {
+  padding: 0.85rem 1.15rem;
+  border-radius: var(--ryokou-radius-md);
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.ryokou-form-alert-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.ryokou-form-alert-success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+/* Field Error Highlight */
+.ryokou-field-block.has-error .ryokou-input-text,
+.ryokou-field-block.has-error .ryokou-input-select,
+.ryokou-field-block.has-error .ryokou-input-textarea {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444;
+}
+
+.ryokou-error-text {
+  display: block;
+  font-size: 0.75rem;
+  color: #f87171;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+/* Submit Button Loading State */
+.ryokou-btn-submit-booking.loading {
+  opacity: 0.75;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+

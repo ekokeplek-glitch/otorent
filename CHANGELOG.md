@@ -7,6 +7,22 @@ Format penulisan berpedoman pada [Keep a Changelog](https://keepachangelog.com/i
 
 ## [Unreleased] - 2026-10-01
 
+### Added
+- **Fase 3 (TASK-012: Validasi Data Pelanggan & Anti-Spam):**
+  - Pembuatan modul server-side `wp-content/plugins/ryokourent-core/includes/booking.php`:
+    - Validasi identitas pelanggan sesuai e-KTP (nama minimal 3 karakter, alamat KTP, alamat menginap di Malang/Batu).
+    - Normalisasi dan validasi nomor seluler Indonesia (`08...` / `628...`, 10–15 digit) via `ryokourent_is_valid_phone()`.
+    - Pengecekan ketat kontak darurat keluarga: wajib valid dan dilarang sama dengan nomor WhatsApp penyewa.
+    - Anti-Spam Honeypot: field `ryokourent_hp` otomatis memblokir bot spam dengan kode status HTTP 400 (`spam_bot_detected`).
+    - Pembatasan laju pengiriman (*rate-limiting*): menggunakan transient berbasis IP hash (maksimal 5 percobaan dalam 10 menit, kode status HTTP 429).
+    - Pendaftaran endpoint AJAX publik `ryokourent_submit_booking` dengan proteksi token nonce CSRF.
+  - Pembuatan script interaktif `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`:
+    - Validasi client-side instan (real-time saat input/blur) untuk nomor WhatsApp, kontak darurat keluarga terpisah, nama, dan alamat.
+    - Pengiriman formulir berbasis AJAX `fetch()` dengan indikator status loading pada tombol submit, penanda visual `.has-error`, dan perenderan pesan alert error `.ryokou-form-alert`.
+  - Pendaftaran dan enqueue aset `ryokourent-booking` script dan lokalisasi konfigurasi pada `wp-content/plugins/ryokourent-core/public/shortcodes.php`.
+  - Penambahan styling CSS untuk alert error/sukses dan status input invalid pada `wp-content/plugins/ryokourent-core/assets/css/ryokourent-public.css`.
+  - Pembuatan unit test otomatis `wp-content/plugins/ryokourent-core/tests/test-booking-validation.php`.
+
 ### Fixed
 - **Fatal Error Redeclaration `ryokourent_get_booking_statuses()`:**
   - Menyelesaikan konflik fatal PHP akibat deklarasi ganda fungsi `ryokourent_get_booking_statuses()` pada `includes/helpers.php` dan `includes/post-types.php`.

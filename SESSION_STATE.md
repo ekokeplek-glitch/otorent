@@ -17,9 +17,9 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
   - `feature/availability` (Fitur pencegahan double booking & pengecekan stok unit)
   - `feature/whatsapp` (Fitur generator draft pesan & URL WhatsApp)
   - `feature/admin-dashboard` (Fitur dashboard admin & pelaporan operasional)
-* **Task Terakhir Selesai:** `TASK-011: Buat Form Booking Dasar`
+* **Task Terakhir Selesai:** `TASK-012: Buat Validasi Data Pelanggan & Anti-Spam`
 * **Status Task Terakhir:** **DONE (SELESAI)**
-* **Task Selanjutnya:** `TASK-012: Buat Validasi Data Pelanggan & Anti-Spam` (Menunggu perintah selanjutnya dari pengguna)
+* **Task Selanjutnya:** `TASK-013: Buat Kalkulasi Durasi Sewa` (Menunggu perintah selanjutnya dari pengguna)
 
 ---
 
@@ -38,7 +38,28 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
 | **TASK-009** | Custom Post Type `penyewaan` | FASE 3 | **DONE** | TASK-004 | 2026-09-30 |
 | **TASK-010** | Status Booking Kustom | FASE 3 | **DONE** | TASK-009 | 2026-09-30 |
 | **TASK-011** | Form Booking Dasar | FASE 3 | **DONE** | TASK-005 | 2026-09-30 |
-| **TASK-012** | Validasi Pelanggan & Anti-Spam | FASE 3 | **PENDING** | TASK-011 | - |
+| **TASK-012** | Validasi Pelanggan & Anti-Spam | FASE 3 | **DONE** | TASK-011 | 2026-10-01 |
+| **TASK-013** | Kalkulasi Durasi Sewa | FASE 3 | **PENDING** | TASK-011 | - |
+
+---
+
+## 3. Komponen yang Telah Diimplementasikan pada TASK-012
+1. **Modul Validasi Backend & Anti-Spam (`wp-content/plugins/ryokourent-core/includes/booking.php`):**
+   - Validasi data pelanggan: Nama lengkap e-KTP (min 3 chars), nomor WhatsApp seluler Indonesia (format `08...`/`628...`, 10–15 digit), alamat KTP, dan tempat menginap di Malang/Batu.
+   - Aturan khusus pemisahan kontak: Nomor kontak darurat keluarga wajib berbeda secara mutlak dari nomor WhatsApp penyewa.
+   - Perlindungan Anti-Spam Honeypot: Field `ryokourent_hp` tersembunyi; jika terisi otomatis memblokir submission dengan status HTTP 400 (`spam_bot_detected`).
+   - Perlindungan Rate-Limiting: Berbasis WordPress transients per IP hash (maksimal 5 kali submit per 10 menit, blokir status HTTP 429).
+   - Validasi CSRF Token Nonce (`ryokourent_booking_form_action`).
+   - Endpoint AJAX resmi: `wp_ajax_ryokourent_submit_booking` dan `wp_ajax_nopriv_ryokourent_submit_booking`.
+2. **Validasi Interaktif Frontend (`wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`):**
+   - Validasi real-time saat user mengetik (*input/blur*) untuk nama, format seluler Indonesia, kontak darurat terpisah, dan alamat.
+   - Intersepsi pengiriman formulir via AJAX `fetch()` dengan indikator status loading pada tombol submit dan scrolling ke input error pertama.
+   - Penanganan respons server: menampilkan banner `.ryokou-form-alert` dan penandaan visual `.has-error` per input field.
+3. **Pendaftaran Aset & Styling:**
+   - Registrasi dan enqueue `ryokourent-booking` script dengan localized configuration `ryokouBookingConfig` pada `public/shortcodes.php`.
+   - Penambahan styling CSS untuk alert error/success dan indikator input invalid pada `assets/css/ryokourent-public.css`.
+4. **Unit Test Suite:**
+   - `wp-content/plugins/ryokourent-core/tests/test-booking-validation.php`.
 
 ---
 
