@@ -73,7 +73,8 @@ if (!function_exists('sanitize_key')) {
     }
 }
 
-// Load post-types and meta-boxes
+// Load helpers, post-types, and meta-boxes
+require_once RYOKOURENT_PLUGIN_DIR . 'includes/helpers.php';
 require_once RYOKOURENT_PLUGIN_DIR . 'includes/post-types.php';
 require_once RYOKOURENT_PLUGIN_DIR . 'includes/meta-boxes.php';
 

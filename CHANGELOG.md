@@ -5,6 +5,15 @@ Format penulisan berpedoman pada [Keep a Changelog](https://keepachangelog.com/i
 
 ---
 
+## [Unreleased] - 2026-10-01
+
+### Fixed
+- **Fatal Error Redeclaration `ryokourent_get_booking_statuses()`:**
+  - Menyelesaikan konflik fatal PHP akibat deklarasi ganda fungsi `ryokourent_get_booking_statuses()` pada `includes/helpers.php` dan `includes/post-types.php`.
+  - Memusatkan definisi lengkap dictionary status booking (multidimensi mencakup label, deskripsi, warna, badge class, dan efek kuota) ke dalam `includes/helpers.php` dengan pembungkus guard `if (!function_exists(...))`.
+  - Menghapus deklarasi duplikat pada `includes/post-types.php` dan menambahkan helper `ryokourent_get_booking_status_labels()` untuk kemudahan akses label ringkas.
+  - Memperbarui berkas pengujian `tests/test-cpt-penyewaan.php` dan `tests/test-helpers.php` agar sinkron dengan struktur status terpusat.
+
 ## [Unreleased] - 2026-09-30
 
 ### Added

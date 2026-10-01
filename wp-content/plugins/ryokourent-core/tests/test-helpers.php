@@ -19,6 +19,11 @@ if (!defined('ABSPATH')) {
             return $text;
         }
     }
+    if (!function_exists('_x')) {
+        function _x($text, $context, $domain = 'default') {
+            return $text;
+        }
+    }
     if (!function_exists('esc_html__')) {
         function esc_html__($text, $domain = 'default') {
             return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
@@ -106,6 +111,10 @@ class Ryokourent_Helpers_Test {
         self::assert(isset($statuses['status_menunggu']), 'statuses contains status_menunggu');
         self::assert(isset($statuses['status_dikonfirmasi']), 'statuses contains status_dikonfirmasi');
         self::assert(count($statuses) === 5, 'statuses contains exactly 5 statuses');
+
+        $labels = ryokourent_get_booking_status_labels();
+        self::assert(isset($labels['status_menunggu']), 'labels contains status_menunggu');
+        self::assert(count($labels) === 5, 'labels contains exactly 5 statuses');
 
         // 8. Locations List
         $locations = ryokourent_get_pool_locations();

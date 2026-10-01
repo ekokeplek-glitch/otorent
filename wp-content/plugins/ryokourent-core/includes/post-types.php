@@ -166,54 +166,6 @@ function ryokourent_register_cpt_penyewaan() {
 add_action('init', 'ryokourent_register_cpt_penyewaan', 5);
 
 /**
- * Return official dictionary of Ryokourent booking statuses.
- *
- * All slugs are strictly <= 20 characters to comply with WordPress DB schema.
- *
- * @since 1.0.0
- * @return array Array of status definitions with labels, colors, and descriptions.
- */
-function ryokourent_get_booking_statuses() {
-    return array(
-        'status_menunggu'    => array(
-            'label'        => _x('Menunggu Konfirmasi', 'post status label', 'ryokourent'),
-            'description'  => __('Pesanan baru dari website, menunggu verifikasi identitas e-KTP dan DP.', 'ryokourent'),
-            'color'        => '#f59e0b',
-            'badge_class'  => 'ryokou-status-menunggu',
-            'counts_quota' => false,
-        ),
-        'status_dikonfirmasi' => array(
-            'label'        => _x('Dikonfirmasi', 'post status label', 'ryokourent'),
-            'description'  => __('Identitas e-KTP valid & DP diterima. Slot kuota armada terkunci.', 'ryokourent'),
-            'color'        => '#3b82f6',
-            'badge_class'  => 'ryokou-status-dikonfirmasi',
-            'counts_quota' => true,
-        ),
-        'status_berjalan'    => array(
-            'label'        => _x('Sewa Berjalan', 'post status label', 'ryokourent'),
-            'description'  => __('Unit telah diserahkan di pool/stasiun, armada sedang dipakai pelanggan.', 'ryokourent'),
-            'color'        => '#10b981',
-            'badge_class'  => 'ryokou-status-berjalan',
-            'counts_quota' => true,
-        ),
-        'status_selesai'     => array(
-            'label'        => _x('Selesai', 'post status label', 'ryokourent'),
-            'description'  => __('Unit dikembalikan dalam kondisi baik, deposit jaminan dikembalikan.', 'ryokourent'),
-            'color'        => '#64748b',
-            'badge_class'  => 'ryokou-status-selesai',
-            'counts_quota' => false,
-        ),
-        'status_dibatalkan'  => array(
-            'label'        => _x('Dibatalkan', 'post status label', 'ryokourent'),
-            'description'  => __('Pemesanan dibatalkan pelanggan atau ditolak operator.', 'ryokourent'),
-            'color'        => '#ef4444',
-            'badge_class'  => 'ryokou-status-dibatalkan',
-            'counts_quota' => false,
-        ),
-    );
-}
-
-/**
  * Register Custom Post Statuses for CPT 'penyewaan'.
  *
  * Registers: status_menunggu, status_dikonfirmasi, status_berjalan,

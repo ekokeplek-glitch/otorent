@@ -313,20 +313,71 @@ function ryokourent_sanitize_plate_number($plate) {
     return $cleaned;
 }
 
-/**
- * Get all recognized booking status slugs and localized Indonesian labels.
- *
- * @since 1.0.0
- * @return array<string, string> Associative array of slug => readable label.
- */
-function ryokourent_get_booking_statuses() {
-    return array(
-        'status_menunggu'    => __('Menunggu Konfirmasi', 'ryokourent'),
-        'status_dikonfirmasi' => __('Dikonfirmasi', 'ryokourent'),
-        'status_berjalan'    => __('Sewa Berjalan', 'ryokourent'),
-        'status_selesai'     => __('Selesai', 'ryokourent'),
-        'status_batal'       => __('Dibatalkan', 'ryokourent'),
-    );
+if (!function_exists('ryokourent_get_booking_statuses')) {
+    /**
+     * Return official dictionary of Ryokourent booking statuses with metadata.
+     *
+     * All slugs are strictly <= 20 characters to comply with WordPress DB schema.
+     *
+     * @since 1.0.0
+     * @return array<string, array> Associative array of slug => status definition.
+     */
+    function ryokourent_get_booking_statuses() {
+        return array(
+            'status_menunggu'     => array(
+                'label'        => function_exists('_x') ? _x('Menunggu Konfirmasi', 'post status label', 'ryokourent') : __('Menunggu Konfirmasi', 'ryokourent'),
+                'description'  => __('Pesanan baru dari website, menunggu verifikasi identitas e-KTP dan DP.', 'ryokourent'),
+                'color'        => '#f59e0b',
+                'badge_class'  => 'ryokou-status-menunggu',
+                'counts_quota' => false,
+            ),
+            'status_dikonfirmasi' => array(
+                'label'        => function_exists('_x') ? _x('Dikonfirmasi', 'post status label', 'ryokourent') : __('Dikonfirmasi', 'ryokourent'),
+                'description'  => __('Identitas e-KTP valid & DP diterima. Slot kuota armada terkunci.', 'ryokourent'),
+                'color'        => '#3b82f6',
+                'badge_class'  => 'ryokou-status-dikonfirmasi',
+                'counts_quota' => true,
+            ),
+            'status_berjalan'     => array(
+                'label'        => function_exists('_x') ? _x('Sewa Berjalan', 'post status label', 'ryokourent') : __('Sewa Berjalan', 'ryokourent'),
+                'description'  => __('Unit telah diserahkan di pool/stasiun, armada sedang dipakai pelanggan.', 'ryokourent'),
+                'color'        => '#10b981',
+                'badge_class'  => 'ryokou-status-berjalan',
+                'counts_quota' => true,
+            ),
+            'status_selesai'      => array(
+                'label'        => function_exists('_x') ? _x('Selesai', 'post status label', 'ryokourent') : __('Selesai', 'ryokourent'),
+                'description'  => __('Unit dikembalikan dalam kondisi baik, deposit jaminan dikembalikan.', 'ryokourent'),
+                'color'        => '#64748b',
+                'badge_class'  => 'ryokou-status-selesai',
+                'counts_quota' => false,
+            ),
+            'status_dibatalkan'   => array(
+                'label'        => function_exists('_x') ? _x('Dibatalkan', 'post status label', 'ryokourent') : __('Dibatalkan', 'ryokourent'),
+                'description'  => __('Pemesanan dibatalkan pelanggan atau ditolak operator.', 'ryokourent'),
+                'color'        => '#ef4444',
+                'badge_class'  => 'ryokou-status-dibatalkan',
+                'counts_quota' => false,
+            ),
+        );
+    }
+}
+
+if (!function_exists('ryokourent_get_booking_status_labels')) {
+    /**
+     * Get simple key-value array of booking status slug => localized label.
+     *
+     * @since 1.0.0
+     * @return array<string, string> Associative array of slug => label.
+     */
+    function ryokourent_get_booking_status_labels() {
+        $statuses = ryokourent_get_booking_statuses();
+        $labels = array();
+        foreach ($statuses as $slug => $data) {
+            $labels[$slug] = $data['label'];
+        }
+        return $labels;
+    }
 }
 
 /**
