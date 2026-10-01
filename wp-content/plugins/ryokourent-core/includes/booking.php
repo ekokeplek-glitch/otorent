@@ -581,11 +581,21 @@ function ryokourent_ajax_submit_booking() {
         ), $validation['status']);
     }
 
-    // Success response with validated data
+    // Generate official WhatsApp URL & formatted message
+    $wa_url = function_exists('ryokourent_get_whatsapp_url')
+        ? ryokourent_get_whatsapp_url($validation['clean_data'])
+        : '';
+    $wa_message = function_exists('ryokourent_build_whatsapp_message')
+        ? ryokourent_build_whatsapp_message($validation['clean_data'])
+        : '';
+
+    // Success response with validated data and official WhatsApp deep link
     wp_send_json_success(array(
-        'code'       => 'validation_success',
-        'message'    => $validation['message'],
-        'clean_data' => $validation['clean_data'],
+        'code'         => 'validation_success',
+        'message'      => $validation['message'],
+        'clean_data'   => $validation['clean_data'],
+        'wa_url'       => $wa_url,
+        'wa_message'   => $wa_message,
     ), 200);
 }
 add_action('wp_ajax_ryokourent_submit_booking', 'ryokourent_ajax_submit_booking');

@@ -905,4 +905,56 @@
   pointer-events: none;
 }
 
+/* WhatsApp Live Preview Box */
+.ryokou-wa-preview-section {
+  background: rgba(16, 185, 129, 0.04);
+  border: 1px dashed rgba(16, 185, 129, 0.35);
+  border-radius: var(--ryokou-radius-md);
+  padding: 1.15rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ryokou-wa-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ryokou-wa-preview-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #34d399;
+}
+
+.ryokou-wa-preview-note {
+  font-size: 0.75rem;
+  color: var(--ryokou-text-muted);
+}
+
+.ryokou-wa-preview-box {
+  background: #0f172a;
+  border: 1px solid var(--ryokou-border-dark);
+  border-radius: var(--ryokou-radius-sm);
+  padding: 1rem;
+  overflow-x: auto;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.ryokou-wa-preview-text {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
 

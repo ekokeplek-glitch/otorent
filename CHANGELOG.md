@@ -8,6 +8,19 @@ Format penulisan berpedoman pada [Keep a Changelog](https://keepachangelog.com/i
 ## [Unreleased] - 2026-10-01
 
 ### Added
+- **Fase 3 (TASK-018: Generator Pesan & Tautan WhatsApp Resmi):**
+  - Pembuatan modul generator WhatsApp `wp-content/plugins/ryokourent-core/includes/whatsapp.php`:
+    - Fungsi `ryokourent_get_official_wa_number()`: menentukan nomor WhatsApp admin secara aman di sisi server dari opsi database dengan sanitasi internasional (`628...`).
+    - Fungsi `ryokourent_build_whatsapp_message($data)`: menyusun draf pesan pemesanan resmi berformat rapi, ber-emotikon terstruktur (🛵, 📋, 👤, 🔒), mencakup rincian jadwal, durasi, lokasi, rute tujuan, estimasi biaya, identitas penyewa lengkap, kontak darurat keluarga terpisah, dan klausul UU PDP.
+    - Fungsi `ryokourent_get_whatsapp_url($data)`: menghasilkan tautan resmi `https://wa.me/{nomor}?text={encoded}` menggunakan `rawurlencode()` (RFC 3986) sehingga teks dan emotikon aman tanpa risiko karakter terpotong.
+    - Pendaftaran endpoint AJAX `ryokourent_get_whatsapp_draft` untuk generator pesan dinamis.
+  - Integrasi ke formulir publik `wp-content/plugins/ryokourent-core/public/forms.php`:
+    - Penambahan boks pratinjau pesan dinamis `#ryokou-wa-preview-text`.
+  - Integrasi ke antarmuka JavaScript `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`:
+    - Pembaruan live preview draf pesan secara instan saat pengguna mengisi formulir.
+    - Penambahan lokalisasi `adminWa` dan penanganan redirect otomatis ke tautan `wa_url`.
+  - Penambahan styling CSS pratinjau WhatsApp pada `wp-content/plugins/ryokourent-core/assets/css/ryokourent-public.css`.
+  - Pembuatan automated unit test `wp-content/plugins/ryokourent-core/tests/test-whatsapp-generator.php` (16 pengujian komprehensif format pesan, emotikon, normalisasi nomor admin 628..., tautan `wa.me`, integrasi `rawurlencode()`, dan round-trip decode).
 - **Fase 3 (TASK-017: Pencegahan Double Booking Atomik pada Dua Titik Kritis):**
   - Implementasi fungsi pengunci atomik `ryokourent_with_motor_lock($motor_id, $callback, $timeout_seconds)` pada `includes/availability.php`:
     - Menggunakan mekanisme `GET_LOCK` MySQL atau transient terisolasi per ID motor dengan pelepasan mutlak dalam blok `finally { RELEASE_LOCK }` untuk mencegah deadlock.

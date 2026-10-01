@@ -321,7 +321,91 @@
           livePrice.textContent = 'Tanya Admin';
         }
       }
+
+      // Update live WhatsApp preview
+      updateWhatsAppLivePreview();
     }
+
+    // Helper: Update live preview of WhatsApp formatted message
+    const waPreviewText = document.getElementById('ryokou-wa-preview-text');
+    function updateWhatsAppLivePreview() {
+      if (!waPreviewText) return;
+
+      const motorName = (motorSelect && motorSelect.selectedIndex > 0)
+        ? motorSelect.options[motorSelect.selectedIndex].text.replace(/\s*\(Rp.*?\)/, '').replace(/\s*-\s*\[.*?\]/, '').trim()
+        : 'Pilihan Motor';
+
+      const startVal = startInput ? startInput.value : '';
+      const endVal = endInput ? endInput.value : '';
+      const durationText = liveDuration ? liveDuration.textContent : '-';
+      const priceText = livePrice ? livePrice.textContent : '-';
+
+      const pickupSelect = document.getElementById('pickup_location');
+      const pickupVal = pickupSelect ? pickupSelect.value : 'Pool Dinoyo';
+
+      const bromoRadio = document.querySelector('input[name="trip_destination"]:checked');
+      const destLabel = (bromoRadio && bromoRadio.value === 'bromo')
+        ? 'Trip Kaldera Gunung Bromo (Khusus Trail CRF 150L)'
+        : 'Wisata Malang & Kota Batu';
+
+      const nameVal = nameInput && nameInput.value.trim() ? nameInput.value.trim() : '-';
+      const waVal = waInput && waInput.value.trim() ? waInput.value.trim() : '-';
+      const emgVal = emgInput && emgInput.value.trim() ? emgInput.value.trim() : '-';
+      const ktpVal = ktpInput && ktpInput.value.trim() ? ktpInput.value.trim() : '-';
+      const stayVal = stayInput && stayInput.value.trim() ? stayInput.value.trim() : '-';
+
+      const socmedInput = document.getElementById('customer_social_media');
+      const socmedVal = socmedInput && socmedInput.value.trim() ? socmedInput.value.trim() : '-';
+
+      const notesInput = document.getElementById('rental_notes');
+      const notesVal = notesInput && notesInput.value.trim() ? notesInput.value.trim() : '-';
+
+      const lines = [
+        "🛵 *FORMULIR PEMESANAN SEWA MOTOR - RYOKOURENT MALANG & BATU*",
+        "────────────────────────────",
+        "Halo Admin Ryokourent, saya ingin mengonfirmasi pesanan sewa motor dengan rincian berikut:",
+        "",
+        "📋 *DETAIL ARMADA & JADWAL SEWA*",
+        "• Model Motor: *" + motorName + "*",
+        "• Waktu Mulai: " + (startVal ? startVal.replace('T', ' ') + ' WIB' : '-'),
+        "• Waktu Selesai: " + (endVal ? endVal.replace('T', ' ') + ' WIB' : '-'),
+        "• Estimasi Durasi: " + durationText,
+        "• Lokasi Pengambilan: " + pickupVal,
+        "• Rute Tujuan: " + destLabel,
+        "• Estimasi Biaya Sewa: *" + priceText + "*",
+        "",
+        "👤 *DATA IDENTITAS PENYEWA*",
+        "• Nama Lengkap: *" + nameVal + "*",
+        "• Nomor WhatsApp: " + waVal,
+        "• Kontak Darurat (Keluarga): " + emgVal,
+        "• Alamat Sesuai KTP: " + ktpVal,
+        "• Tempat Menginap di Malang/Batu: " + stayVal,
+        "• Akun Media Sosial: " + socmedVal,
+        "• Catatan Tambahan: " + notesVal,
+        "",
+        "────────────────────────────",
+        "🔒 _Data identitas telah diisi sesuai formulir resmi Ryokourent dan dilindungi UU PDP. Mohon informasi ketersediaan unit dan rekening pembayaran jaminan (DP). Terima kasih!_"
+      ];
+
+      waPreviewText.textContent = lines.join("\n");
+    }
+
+    // Attach listeners for live preview updates
+    ['customer_name', 'customer_whatsapp', 'customer_emergency_phone', 'customer_ktp_address', 'customer_stay_address', 'customer_social_media', 'rental_notes'].forEach(function (fieldId) {
+      const el = document.getElementById(fieldId);
+      if (el) {
+        el.addEventListener('input', updateWhatsAppLivePreview);
+        el.addEventListener('change', updateWhatsAppLivePreview);
+      }
+    });
+
+    const pickupEl = document.getElementById('pickup_location');
+    if (pickupEl) {
+      pickupEl.addEventListener('change', updateWhatsAppLivePreview);
+    }
+    document.querySelectorAll('input[name="trip_destination"]').forEach(function (radio) {
+      radio.addEventListener('change', updateWhatsAppLivePreview);
+    });
 
     if (startInput) {
       startInput.addEventListener('change', updateLiveDurationAndPrice);
@@ -334,8 +418,9 @@
     if (motorSelect) {
       motorSelect.addEventListener('change', updateLiveDurationAndPrice);
     }
-    // Run initial calculation
+    // Run initial calculation and preview
     updateLiveDurationAndPrice();
+    updateWhatsAppLivePreview();
 
     // Form submit validation & AJAX transmission
     bookingForm.addEventListener('submit', function (e) {

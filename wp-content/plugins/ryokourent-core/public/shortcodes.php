@@ -61,6 +61,7 @@ function ryokourent_register_public_assets() {
     wp_localize_script('ryokourent-booking', 'ryokouBookingConfig', array(
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce'   => wp_create_nonce('ryokourent_booking_form_action'),
+        'adminWa' => $clean_wa,
         'strings' => array(
             'submitting'   => __('Memproses pesanan...', 'ryokourent'),
             'submitText'   => __('Lanjutkan Pemesanan via WhatsApp', 'ryokourent'),

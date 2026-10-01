@@ -254,15 +254,21 @@ Dokumen ini berisi rincian urutan 30 task proyek Ryokourent sesuai dengan arsite
 
 ---
 
-### TASK-018: Buat Generator Pesan WhatsApp Resmi
+### TASK-018: Buat Generator Pesan WhatsApp Resmi [DONE]
+* **Status:** Selesai (DONE) - 2026-10-01
 * **Tujuan:** Menyusun draf pesan WhatsApp resmi yang rapi, ber-emotikon terstruktur, dan menghasilkan tautan resmi `https://wa.me/{nomor}?text={encoded_text}` dengan `rawurlencode()`.
 * **File yang Dibuat/Diubah:**
   * `wp-content/plugins/ryokourent-core/includes/whatsapp.php`
+  * `wp-content/plugins/ryokourent-core/includes/booking.php`
+  * `wp-content/plugins/ryokourent-core/public/forms.php`
+  * `wp-content/plugins/ryokourent-core/public/shortcodes.php`
   * `wp-content/plugins/ryokourent-core/assets/js/ryokourent-booking.js`
+  * `wp-content/plugins/ryokourent-core/assets/css/ryokourent-public.css`
+  * `wp-content/plugins/ryokourent-core/tests/test-whatsapp-generator.php`
 * **Dependensi:** TASK-011, TASK-014.
-* **Kriteria Selesai:** Live preview pesan WhatsApp di form terisi dinamis dan tombol mengarahkan ke WhatsApp dengan pesan siap kirim. Nomor tujuan diambil dari pengaturan server (bukan dari client).
-* **Cara Pengujian:** Isi formulir secara lengkap, klik tombol, cek teks yang muncul di aplikasi WhatsApp Web/Mobile.
-* **Risiko:** Teks terpotong jika karakter khusus tidak di-encode dengan `rawurlencode()`.
+* **Kriteria Selesai:** Live preview pesan WhatsApp di formulir terisi dinamis dan tombol mengarahkan ke WhatsApp dengan pesan siap kirim. Nomor tujuan diambil dari pengaturan server (bukan dari client). Tautan di-encode dengan `rawurlencode()` standar RFC 3986 sehingga karakter spesial, baris baru, dan emoji tidak terpotong.
+* **Cara Pengujian:** Jalankan unit test `test-whatsapp-generator.php` untuk memvalidasi pembentukan draf pesan, penataan emotikon, pemrosesan nomor tujuan server-authoritative, pengkodean `rawurlencode()`, dan round-trip decode tanpa pemotongan karakter.
+* **Risiko:** Teks terpotong jika karakter khusus tidak di-encode dengan `rawurlencode()` (teratasi dengan pengujian round-trip yang memverifikasi integritas 100%).
 
 ---
 

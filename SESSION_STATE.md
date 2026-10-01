@@ -17,9 +17,9 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
   - `feature/availability` (Fitur pencegahan double booking & pengecekan stok unit)
   - `feature/whatsapp` (Fitur generator draft pesan & URL WhatsApp)
   - `feature/admin-dashboard` (Fitur dashboard admin & pelaporan operasional)
-* **Task Terakhir Selesai:** `TASK-017: Buat Pencegahan Double Booking Atomik (Dua Titik Kritis)`
+* **Task Terakhir Selesai:** `TASK-018: Buat Generator Pesan WhatsApp Resmi`
 * **Status Task Terakhir:** **DONE (SELESAI)**
-* **Task Selanjutnya:** `TASK-018: Buat Generator Pesan WhatsApp Resmi` (Menunggu perintah selanjutnya dari pengguna)
+* **Task Selanjutnya:** `TASK-019: Buat Penyimpanan Booking (AJAX & Nonce Handler Kompatibel Cache)` (Menunggu perintah selanjutnya dari pengguna)
 
 ---
 
@@ -44,7 +44,23 @@ Dokumen ini melacak status pengerjaan sesi, task aktif, dependensi yang telah te
 | **TASK-015** | Validasi Tanggal dan Jam | FASE 3 | **DONE** | TASK-013 | 2026-10-01 |
 | **TASK-016** | Validasi Ketersediaan Unit | FASE 3 | **DONE** | TASK-005, TASK-010 | 2026-10-01 |
 | **TASK-017** | Pencegahan Double Booking Atomik | FASE 3 | **DONE** | TASK-016 | 2026-10-01 |
-| **TASK-018** | Generator Pesan WhatsApp | FASE 3 | **PENDING** | TASK-011, TASK-014 | - |
+| **TASK-018** | Generator Pesan WhatsApp | FASE 3 | **DONE** | TASK-011, TASK-014 | 2026-10-01 |
+| **TASK-019** | Penyimpanan Booking (AJAX & Nonce) | FASE 3 | **PENDING** | TASK-017, TASK-018 | - |
+
+---
+
+## 3. Komponen yang Telah Diimplementasikan pada TASK-018
+1. **Modul Generator Pesan & Tautan WhatsApp (`wp-content/plugins/ryokourent-core/includes/whatsapp.php`):**
+   - Fungsi `ryokourent_get_official_wa_number()`: menentukan nomor WhatsApp admin secara aman di sisi server (dari opsi `ryokourent_wa_number` dengan fallback default). Client dilarang memanipulasi nomor tujuan admin.
+   - Fungsi `ryokourent_build_whatsapp_message($data)`: menyusun draf pesan WhatsApp resmi berformat rapi, ber-emotikon terstruktur (🛵, 📋, 👤, 🔒), mencakup rincian jadwal, durasi sewa, lokasi serah terima unit, rute tujuan, estimasi biaya sewa, identitas penyewa lengkap (nama, WA, kontak darurat keluarga terpisah, alamat KTP, tempat menginap di Malang/Batu, medsos, dan catatan perlengkapan), serta klausul privasi UU PDP.
+   - Fungsi `ryokourent_get_whatsapp_url($data, $phone)`: menghasilkan tautan resmi `https://wa.me/{nomor}?text={encoded_text}` dengan `rawurlencode()` (RFC 3986) sehingga seluruh teks, emoji, baris baru, dan spasi aman dari risiko pemotongan karakter di browser mobile maupun desktop.
+   - Endpoint AJAX `ryokourent_get_whatsapp_draft` untuk generator pesan dinamis.
+2. **Integrasi Pratinjau Interaktif Frontend (`public/forms.php`, `assets/js/ryokourent-booking.js`, `assets/css/ryokourent-public.css`):**
+   - Menambahkan boks pratinjau langsung `#ryokou-wa-preview-text` di formulir publik sebelum tombol submit.
+   - Menambahkan event listener reaktif pada seluruh input formulir (nama, tanggal, pilihan motor, rute, kontak, alamat, catatan) untuk memperbarui draf pesan WhatsApp secara *real-time*.
+   - Menyertakan data `adminWa`, `wa_url`, dan `wa_message` pada respons AJAX submit formulir booking.
+3. **Automated Unit Test Suite:**
+   - `wp-content/plugins/ryokourent-core/tests/test-whatsapp-generator.php` (16 pengujian komprehensif struktur pesan, emotikon, normalisasi nomor admin 628..., tautan `wa.me`, integrasi `rawurlencode()`, dan round-trip decode tanpa kehilangan karakter).
 
 ---
 

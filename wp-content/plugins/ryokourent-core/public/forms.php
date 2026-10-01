@@ -369,6 +369,17 @@ function ryokourent_render_booking_form($args = array()) {
                     </div>
                 </div>
 
+                <!-- Live WhatsApp Preview Card -->
+                <div class="ryokou-wa-preview-section">
+                    <div class="ryokou-wa-preview-header">
+                        <span class="ryokou-wa-preview-badge">💬 PRATINJAU FORMAT PESAN WHATSAPP</span>
+                        <span class="ryokou-wa-preview-note"><?php esc_html_e('Draf pesan otomatis tersusun rapi untuk Admin resmi', 'ryokourent'); ?></span>
+                    </div>
+                    <div class="ryokou-wa-preview-box">
+                        <pre class="ryokou-wa-preview-text" id="ryokou-wa-preview-text"><?php esc_html_e('Lengkapi data isian formulir di atas untuk melihat draf pesan resmi...', 'ryokourent'); ?></pre>
+                    </div>
+                </div>
+
                 <!-- Submit Button & Disclaimer -->
                 <div class="ryokou-form-footer">
                     <button type="submit" class="ryokou-btn-submit-booking" id="ryokou-btn-submit">
